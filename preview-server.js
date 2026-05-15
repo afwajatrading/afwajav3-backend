@@ -1543,6 +1543,7 @@ async function handleCreatePaymentIntent(request, response) {
     const bankName = trimValue(body.bankName);
     const bankAccountName = trimValue(body.bankAccountName);
     const bankAccountNumber = trimValue(body.bankAccountNumber);
+    const termsAgreement = body.termsAgreement === true || `${body.termsAgreement || ""}`.toLowerCase() === "true";
 
     if (
         !carName ||
@@ -1560,6 +1561,11 @@ async function handleCreatePaymentIntent(request, response) {
         !bankAccountNumber
     ) {
         sendJson(response, 400, { error: "Please complete all booking fields before continuing." });
+        return;
+    }
+
+    if (!termsAgreement) {
+        sendJson(response, 400, { error: "Please agree to the Terms & Conditions before continuing to BayarCash." });
         return;
     }
 
