@@ -16,7 +16,7 @@
         },
         fleetData: {
             "Kumpulan A (Compact & Economy)": [
-                { name: "Perodua Axia", desc: "Auto &bull; 4 Seats &bull; Compact", price: 1, img: "https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2KRRG31583SYNP78CEK0XS.png", type: "Compact" },
+                { name: "Perodua Axia", desc: "Auto &bull; 4 Seats &bull; Compact", price: 135, img: "https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2KRRG31583SYNP78CEK0XS.png", type: "Compact" },
                 { name: "Perodua Axia (Old Model)", desc: "Auto &bull; 4 Seats &bull; Compact", price: 120, img: "https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2NBPFBV38BFRPQ26N1YF6G.png", type: "Compact", imgPadding: "p-1" },
                 { name: "Perodua Myvi", desc: "Auto &bull; 5 Seats &bull; Hatchback", price: 160, img: "https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2PZ2F2FX5K3FV79TBZ0VRK.png", type: "Hatchback" },
                 { name: "Perodua Bezza", desc: "Auto &bull; 5 Seats &bull; Sedan", price: 150, img: "https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2NBQA2YBK2WEXG2S996C8P.png", type: "Sedan" },
