@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms and Conditions - Afwaja Car Rental</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="assets/js/tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="font-poppins text-slate-800 bg-slate-50 antialiased selection:bg-afwaja-cyan selection:text-white">
+
+    <!-- Simple Navbar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="flex items-center gap-2 text-slate-600 hover:text-afwaja-teal transition-colors font-medium">
+                    <i class="fas fa-arrow-left"></i> <span data-i18n="nav_back">Kembali ke Laman Utama</span>
+                </a>
+                
+                <div class="flex items-center gap-6">
+                    <!-- Language Toggle -->
+                    <button type="button" class="px-3 py-1 rounded-full border border-slate-300 hover:border-afwaja-teal text-sm font-semibold transition" id="lang-toggle" data-language-toggle>
+                        <span class="text-slate-400">EN</span> / <strong>MS</strong>
+                    </button>
+                    <img class="h-8 w-auto hidden sm:block" src="https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2KFY3QZ342VQBTS02D1K8E.png" alt="Afwaja Logo">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="terms-hero text-white py-12 md:py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-sm" data-i18n="header_title">Terma dan Syarat Sewaan</h1>
+            <p class="text-slate-100/90" data-i18n="header_desc">Sila baca dan fahami polisi serta terma sewaan Afwaja Car Rental sebelum membuat tempahan.</p>
+        </div>
+    </header>
+
+    <!-- Content Section -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            
+            <div class="p-6 md:p-10 space-y-12">
+                
+                <!-- Section 1 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-laptop-house w-6"></i> <span data-i18n="sec1_title">Tempahan Dalam Talian (Online Booking)</span>
+                    </h2>
+                    <ul class="list-disc list-outside ml-5 space-y-2 text-slate-600">
+                        <li data-i18n="sec1_p1">Bagi tempahan dalam talian, pengesahan akan dihantar melalui emel dalam tempoh satu (1) jam.</li>
+                        <li data-i18n="sec1_p2">Jika kenderaan tidak tersedia, bayaran akan dipulangkan sepenuhnya (full refund).</li>
+                    </ul>
+                </section>
+
+                <!-- Section 2 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-map-marker-alt w-6"></i> <span data-i18n="sec2_title">Caj Penghantaran & Pengambilan</span>
+                    </h2>
+                    <p class="text-slate-600 mb-3" data-i18n="sec2_desc">Caj penghantaran dan pickup semula dikira berdasarkan jarak jalan sebenar dari Afwaja Car Rental Cyberjaya.</p>
+                    <ul class="space-y-2 text-slate-600 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l1">Ambil sendiri / pulang sendiri di Afwaja Car Rental Cyberjaya</span> <span class="font-bold text-slate-800">RM0</span></li>
+                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l2">Penghantaran ke lokasi ambil (Pick-up Location)</span> <span class="font-bold text-slate-800">RM2/km</span></li>
+                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l3">Pickup semula dari lokasi pulang (Return Location)</span> <span class="font-bold text-slate-800">RM2/km</span></li>
+                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l4">Kiraan jarak</span> <span class="font-bold text-slate-800" data-i18n="sec2_v4">Google Maps</span></li>
+                        <li class="flex justify-between pt-1"><span data-i18n="sec2_l5">Jumlah caj transport</span> <span class="font-bold text-slate-800" data-i18n="sec2_v5">Dikira automatik</span></li>
+                    </ul>
+                </section>
+
+                <!-- Section 3 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-shield-alt w-6"></i> <span data-i18n="sec3_title">Deposit Keselamatan</span>
+                    </h2>
+                    <ul class="list-disc list-outside ml-5 space-y-2 text-slate-600">
+                        <li data-i18n="sec3_p1">Deposit keselamatan sebanyak RM100 hingga RM400 bagi setiap kenderaan akan dikenakan semasa pengambilan, bergantung kepada jenis kenderaan.</li>
+                        <li data-i18n="sec3_p2">Deposit akan dipulangkan dalam tempoh 3 hingga 14 hari bekerja selepas kenderaan dipulangkan, tertakluk kepada keadaan kenderaan yang baik serta tiada saman atau denda.</li>
+                    </ul>
+                </section>
+
+                <!-- Section 4 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-users w-6"></i> <span data-i18n="sec4_title">Pemandu Tambahan, Had Umur & Lesen</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-600">
+                        <div>
+                            <h3 class="font-bold text-slate-800 mb-1" data-i18n="sec4_sub1">Pemandu Tambahan</h3>
+                            <p data-i18n="sec4_p1">Pemandu tambahan dikenakan caj <strong>RM10 seorang sehari</strong>. Semua pemandu mesti didaftarkan semasa pengambilan. Syarikat berhak mengenakan penalti RM500 sekiranya kenderaan dipandu oleh individu yang tidak dibenarkan.</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 mb-1" data-i18n="sec4_sub2">Had Umur & Lesen</h3>
+                            <ul class="list-disc list-outside ml-5 space-y-1">
+                                <li data-i18n="sec4_p2">Pemandu mestilah berumur antara 23 hingga 65 tahun.</li>
+                                <li data-i18n="sec4_p3">Warganegara asing yang mempunyai lesen memandu sah dalam Bahasa Inggeris dibenarkan memandu di Malaysia maksimum selama 3 bulan.</li>
+                                <li data-i18n="sec4_p4">Pemegang lesen percubaan (P) <strong>tidak dibenarkan</strong>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 5 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-clock w-6"></i> <span data-i18n="sec5_title">Tempoh Sewaan, Lanjutan & Perbatuan</span>
+                    </h2>
+                    <ul class="list-disc list-outside ml-5 space-y-2 text-slate-600">
+                        <li data-i18n="sec5_p1"><strong>Tempoh minimum sewaan:</strong> Satu (1) hari (24 jam).</li>
+                        <li data-i18n="sec5_p2"><strong>Caj lewat pulang / lanjutan:</strong> Caj setiap jam adalah 10% daripada kadar sewaan harian. Jika jumlah caj jam melebihi kadar harian, caj satu hari penuh akan dikenakan.</li>
+                        <li data-i18n="sec5_p3"><strong>Polisi Had Perbatuan:</strong> Sewaan termasuk 300 km sehari. Lebihan jarak akan dikenakan caj RM1 bagi setiap km.</li>
+                    </ul>
+                </section>
+
+                <!-- Section 6 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-clipboard-check w-6"></i> <span data-i18n="sec6_title">Pengambilan & Pengesahan Kenderaan</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-600">
+                        <div>
+                            <h3 class="font-bold text-slate-800" data-i18n="sec6_sub1">1. Penyewa Sah & Pengambilan Tanpa Kebenaran</h3>
+                            <p data-i18n="sec6_p1">Hanya individu yang membuat tempahan dan mengemukakan kad pengenalan/pasport serta lesen memandu yang sah dibenarkan mengambil kenderaan. Kenderaan tidak akan diserahkan kepada pihak lain tanpa kebenaran bertulis. Jika individu tidak dibenarkan cuba mengambil kenderaan, tempahan dibatalkan (tertakluk kepada caj).</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800" data-i18n="sec6_sub2">2. Dokumen Diperlukan</h3>
+                            <p data-i18n="sec6_p2">Sila bawa salinan: Kad pengenalan / Pasport, Lesen memandu, dan Kad perniagaan atau bukti alamat.</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800" data-i18n="sec6_sub3">3. Pemeriksaan Kenderaan</h3>
+                            <p data-i18n="sec6_p3">Penyewa mesti memeriksa kenderaan semasa pengambilan. Sebarang kerosakan mesti dilaporkan segera. Kerosakan yang tidak dilaporkan akan dianggap tanggungjawab penyewa.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 7 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-car-crash w-6"></i> <span data-i18n="sec7_title">Insurans, Lebihan (Excess) & Kemalangan</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-600">
+                        <p data-i18n="sec7_desc">Semua kenderaan dilindungi insurans, namun penyewa bertanggungjawab ke atas lebihan (Excess):</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                <h4 class="font-bold text-slate-800 mb-2" data-i18n="sec7_t1">Kadar Lebihan Maksimum</h4>
+                                <ul class="space-y-1 text-sm">
+                                    <li data-i18n="sec7_l1"><strong>Kumpulan A:</strong> RM4,000</li>
+                                    <li data-i18n="sec7_l2"><strong>Kumpulan B:</strong> RM6,000</li>
+                                    <li data-i18n="sec7_l3"><strong>Kumpulan C:</strong> RM10,000</li>
+                                    <li data-i18n="sec7_l4"><strong>Kumpulan D:</strong> RM20,000</li>
+                                </ul>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                <h4 class="font-bold text-slate-800 mb-2" data-i18n="sec7_t2">Kumpulan Kenderaan</h4>
+                                <ul class="space-y-1 text-sm">
+                                    <li><strong>A:</strong> Axia, Myvi, Bezza, Ativa</li>
+                                    <li><strong>B:</strong> Yaris, City, Vios</li>
+                                    <li><strong>C:</strong> Aruz, X50, HRV, Alza, Serena, Xpander, X70, CRV, Innova Zenix</li>
+                                    <li><strong>D:</strong> Vellfire, Alphard, Staria, Starex</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="font-bold text-slate-800 mb-1 text-red-600" data-i18n="sec7_sub1">Pengecualian Insurans</h3>
+                            <p class="text-sm" data-i18n="sec7_p1">Insurans <strong>tidak melindungi</strong>: Kecuaian/salah guna, tayar pancit/pecah, kesilapan isi minyak, kerosakan bateri akibat kecuaian, dan aksesori hilang/rosak. Kerosakan hanya dilindungi jika melibatkan perlanggaran dua kenderaan bergerak. Jika kenderaan rosak ketika parkir, penyewa bertanggungjawab sepenuhnya. Bahagian bawah, cermin dan bumbung tidak dilindungi.</p>
+                        </div>
+
+                        <div>
+                            <h3 class="font-bold text-slate-800 mb-1" data-i18n="sec7_sub2">Kemalangan & Yuran Pengurusan</h3>
+                            <p class="text-sm" data-i18n="sec7_p2">Laporan polis mesti dibuat dalam masa 24 jam. Jika berlaku kemalangan, syarikat boleh mengenakan caj pengurusan (meliputi urusan insurans, komunikasi, kehilangan pendapatan) antara <strong>RM1,000 &ndash; RM5,000</strong> bergantung kepada kenderaan. Jika tuntutan pihak ketiga gagal, kos ditanggung penyewa.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 8 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-list-ul w-6"></i> <span data-i18n="sec8_title">Terma Tambahan, Pemulangan & Pembatalan</span>
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-slate-600 text-sm">
+                        <!-- Column 1 -->
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="font-bold text-slate-800" data-i18n="sec8_sub1">Minyak</h3>
+                                <p data-i18n="sec8_p1">Kenderaan mesti dipulangkan dengan paras minyak sama. Caj sehingga RM300 dikenakan jika kurang.</p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800" data-i18n="sec8_sub2">Kebersihan</h3>
+                                <p data-i18n="sec8_p2">Jika terlalu kotor &rarr; caj RM300. Merokok / bawa haiwan &rarr; penalti RM500.</p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800" data-i18n="sec8_sub3">Saman & Tiket Trafik</h3>
+                                <p data-i18n="sec8_p3">Semua saman tanggungjawab penyewa. Lewat bayar &rarr; penalti RM300.</p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800" data-i18n="sec8_sub4">Had Laju</h3>
+                                <p data-i18n="sec8_p4">Lebuh raya: 110 km/j. Jalan biasa: 90 km/j.</p>
+                            </div>
+                        </div>
+
+                        <!-- Column 2 -->
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="font-bold text-slate-800" data-i18n="sec8_sub5">Polisi Pembatalan</h3>
+                                <ul class="list-disc list-inside">
+                                    <li data-i18n="sec8_l1">24 jam sebelum: Full refund</li>
+                                    <li data-i18n="sec8_l2">Kurang 24 jam / No show: Tiada refund</li>
+                                    <li data-i18n="sec8_l3">Tukar tarikh: Tertakluk kepada kekosongan</li>
+                                    <li data-i18n="sec8_l4">Syarikat batal: Refund penuh atau reschedule</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800" data-i18n="sec8_sub6">Pemulangan & Penamatan</h3>
+                                <p data-i18n="sec8_p5">Maklum sekurang-kurangnya 12 jam sebelum pulangkan kereta. Syarikat boleh tamatkan sewaan serta-merta jika berlaku salah guna. Deposit boleh hangus.</p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800" data-i18n="sec8_sub7">Kegunaan Jenayah</h3>
+                                <p data-i18n="sec8_p6">Jika digunakan untuk jenayah, penyewa bertanggungjawab penuh atas nilai kenderaan.</p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800" data-i18n="sec8_sub9">Tunggakan Bayaran</h3>
+                                <p data-i18n="sec8_p8">Jika terdapat bayaran tertunggak yang tidak dijelaskan, nama penyewa boleh disenarai hitam dalam sistem CTOS dan tindakan lanjut boleh diambil oleh syarikat.</p>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800" data-i18n="sec8_sub8">Data Peribadi & Penafian</h3>
+                                <p data-i18n="sec8_p7">Data boleh dikongsi dengan agensi berkaitan untuk tujuan kutipan hutang. Dengan menyewa, penyewa bersetuju dengan semua terma dan syarat.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-center text-sm">
+        <p>&copy; <span id="year"></span> Afwaja Car Rental. <span data-i18n="footer_copy">Hak Cipta Terpelihara.</span></p>
+    </footer>
+
+    <script src="assets/js/shared.js"></script>
+    <script src="assets/js/terms.js"></script>
+</body>
+</html>

@@ -1,0 +1,606 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afwaja Car Rental</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="assets/js/tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="font-poppins text-slate-800 bg-slate-50 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md shadow-sm z-50 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <img class="h-12 w-auto" src="https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2KFY3QZ342VQBTS02D1K8E.png" alt="Afwaja Car Rental" onerror="this.src='https://via.placeholder.com/150x50?text=AFWAJA+LOGO'">
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_home">Home</a>
+                    <a href="#about" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_about">About Us</a>
+                    <a href="#fleet" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_fleet">Our Fleet</a>
+                    <a href="#testimonials" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_testimonials">Testimonials</a>
+                    <a href="#terms" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_terms">Terms</a>
+                    <a href="#contact" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_contact">Contact Us</a>
+                    
+                    <!-- Language Toggle -->
+                    <button type="button" class="ml-4 px-3 py-1 rounded-full border border-slate-300 hover:border-afwaja-teal text-sm font-semibold transition" id="lang-toggle" data-language-toggle>
+                        EN / <span class="text-slate-400">MS</span>
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center gap-4">
+                    <button type="button" class="px-2 py-1 rounded text-xs font-semibold border border-slate-300" id="lang-toggle-mobile" data-language-toggle>
+                        EN
+                    </button>
+                    <button type="button" id="mobile-menu-toggle" class="text-slate-600 hover:text-afwaja-teal focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div class="md:hidden hidden bg-white border-t" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_home" data-mobile-nav-link>Home</a>
+                <a href="#about" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_about" data-mobile-nav-link>About Us</a>
+                <a href="#fleet" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_fleet" data-mobile-nav-link>Our Fleet</a>
+                <a href="#testimonials" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_testimonials" data-mobile-nav-link>Testimonials</a>
+                <a href="#terms" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_terms" data-mobile-nav-link>Terms</a>
+                <a href="#contact" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_contact" data-mobile-nav-link>Contact Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <div id="payment-status-banner" class="hidden fixed top-24 inset-x-4 md:inset-x-auto md:right-6 md:w-full md:max-w-md z-[60]">
+        <div id="payment-status-card" class="rounded-3xl border border-slate-200 bg-white/95 backdrop-blur-md shadow-2xl shadow-slate-900/10 p-5">
+            <div class="flex items-start gap-4">
+                <div id="payment-status-icon" class="w-12 h-12 rounded-2xl bg-slate-100 text-afwaja-navy flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-circle-info text-lg"></i>
+                </div>
+                <div class="flex-1">
+                    <p id="payment-status-title" class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Payment Update</p>
+                    <p id="payment-status-message" class="mt-2 text-sm leading-relaxed text-slate-700"></p>
+                </div>
+                <button type="button" id="payment-status-close" class="text-slate-400 hover:text-slate-600 transition-colors" aria-label="Dismiss payment status">
+                    <i class="fas fa-xmark text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-surface relative pt-32 pb-20 lg:pt-44 lg:pb-28 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <!-- Background Image Placeholder -->
+            <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Car on road" class="w-full h-full object-cover opacity-[0.12] scale-105">
+            <div class="hero-grid-pattern absolute inset-0"></div>
+            <div class="hero-orb hero-orb-cyan h-64 w-64 -left-16 top-24 md:h-80 md:w-80 md:left-8 md:top-16"></div>
+            <div class="hero-orb hero-orb-teal h-56 w-56 right-[-3rem] top-44 md:h-72 md:w-72 md:right-12 md:top-28"></div>
+            <div class="hero-orb hero-orb-cyan h-44 w-44 left-1/2 -translate-x-1/2 bottom-12 md:h-56 md:w-56 md:bottom-8"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-white/70 via-white/78 to-slate-50"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="hero-panel max-w-5xl mx-auto px-5 py-10 md:px-10 md:py-12 text-center backdrop-blur-md rounded-[2rem]">
+            <div class="inline-flex items-center gap-2 hero-badge rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white mb-6">
+                <i class="fas fa-car-side text-[0.85rem]"></i>
+                <span data-i18n="hero_badge">Premium Car Rental</span>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-bold text-afwaja-navy mb-6 tracking-tight">
+                <span data-i18n="hero_title1">Travel in Comfort and Style with</span> <br class="hidden md:block" /> 
+                <span class="gradient-text">Afwaja Car Rental</span>
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto" data-i18n="hero_subtitle">
+                Premium, reliable, and affordable car rentals for your every journey. Experience smooth rides and hassle-free booking today.
+            </p>
+            <div class="flex flex-wrap justify-center gap-3 mb-8">
+                <div class="hero-chip inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-slate-700">
+                    <i class="fas fa-bolt text-afwaja-teal"></i>
+                    <span data-i18n="hero_chip_fast">Easy Booking Options</span>
+                </div>
+                <div class="hero-chip inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-slate-700">
+                    <i class="fas fa-shield-heart text-afwaja-teal"></i>
+                    <span data-i18n="hero_chip_support">24/7 Customer Support</span>
+                </div>
+                <div class="hero-chip inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-slate-700">
+                    <i class="fas fa-plane-arrival text-afwaja-teal"></i>
+                    <span data-i18n="hero_chip_delivery">KLIA & City Delivery</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 max-w-3xl mx-auto mb-8" id="stats-section">
+                <div class="hero-stat-card rounded-2xl px-4 py-4">
+                    <div class="text-2xl md:text-3xl font-bold text-afwaja-navy"><span class="stat-number" data-target="20">0</span>+</div>
+                    <p class="text-xs md:text-sm font-medium text-slate-500 uppercase tracking-wider mt-1" data-i18n="hero_stat_fleet">Vehicles Ready</p>
+                </div>
+                <div class="hero-stat-card rounded-2xl px-4 py-4">
+                    <div class="text-2xl md:text-3xl font-bold text-afwaja-navy"><span class="stat-number" data-target="500">0</span>+</div>
+                    <p class="text-xs md:text-sm font-medium text-slate-500 uppercase tracking-wider mt-1" data-i18n="hero_stat_clients">Happy Customers</p>
+                </div>
+                <div class="hero-stat-card rounded-2xl px-4 py-4">
+                    <div class="text-2xl md:text-3xl font-bold text-afwaja-navy"><span class="stat-number" data-target="24">0</span>/7</div>
+                    <p class="text-xs md:text-sm font-medium text-slate-500 uppercase tracking-wider mt-1" data-i18n="hero_stat_support">Support Team</p>
+                </div>
+            </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2">
+                    <img src="https://platform-bcl.bsb-cdn.com/media/2026/04/01KNYN7W4E9NRN01Q1T27DJDFZ.png" alt="About Afwaja" class="rounded-2xl shadow-xl w-full h-auto object-cover border-4 border-slate-50">
+                </div>
+                <div class="lg:w-1/2">
+                    <h2 class="text-sm font-bold text-afwaja-teal uppercase tracking-wider mb-2" data-i18n="about_label">About Us</h2>
+                    <h3 class="text-3xl md:text-4xl font-bold text-afwaja-navy mb-6" data-i18n="about_title">Your Trusted Travel Companion</h3>
+                    <p class="text-slate-600 mb-6 leading-relaxed" data-i18n="about_p1">
+                        At Afwaja Car Rental, we believe that the journey is just as important as the destination. We provide a wide range of well-maintained vehicles to suit your needs, whether it's a quick city run, a family vacation, or a corporate trip.
+                    </p>
+                    <p class="text-slate-600 mb-8 leading-relaxed" data-i18n="about_p2">
+                        Our core values are simplicity, transparency, and customer satisfaction. No hidden fees, flexible rental terms, and a dedicated team ready to assist you 24/7.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+                        <!-- Feature 1 -->
+                        <div class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-afwaja-cyan transition-colors">
+                            <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white flex-shrink-0 shadow-md">
+                                <i class="fas fa-tags text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 mb-1" data-i18n="feat_price">Best Prices</h4>
+                                <p class="text-xs text-slate-500 leading-relaxed" data-i18n="feat_price_desc">Competitive rates with zero hidden charges.</p>
+                            </div>
+                        </div>
+                        <!-- Feature 2 -->
+                        <div class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-afwaja-cyan transition-colors">
+                            <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white flex-shrink-0 shadow-md">
+                                <i class="fas fa-screwdriver-wrench text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 mb-1" data-i18n="feat_quality">Well-Maintained</h4>
+                                <p class="text-xs text-slate-500 leading-relaxed" data-i18n="feat_quality_desc">Sanitized & strictly serviced for your safety.</p>
+                            </div>
+                        </div>
+                        <!-- Feature 3 -->
+                        <div class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-afwaja-cyan transition-colors">
+                            <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white flex-shrink-0 shadow-md">
+                                <i class="fas fa-headset text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 mb-1" data-i18n="feat_support">24/7 Support</h4>
+                                <p class="text-xs text-slate-500 leading-relaxed" data-i18n="feat_support_desc">Roadside assistance whenever you need us.</p>
+                            </div>
+                        </div>
+                        <!-- Feature 4 -->
+                        <div class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-afwaja-cyan transition-colors">
+                            <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white flex-shrink-0 shadow-md">
+                                <i class="fas fa-calendar-check text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 mb-1" data-i18n="feat_fast">Easy Booking</h4>
+                                <p class="text-xs text-slate-500 leading-relaxed" data-i18n="feat_fast_desc">Simple booking through our website or WhatsApp in just minutes.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="booking-modal" class="hidden fixed inset-0 z-[70] overflow-y-auto" aria-hidden="true">
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" data-booking-close></div>
+        <div class="relative min-h-screen flex items-start lg:items-center justify-center p-4 md:p-6">
+            <div class="w-full max-w-5xl my-4 rounded-[2rem] bg-white shadow-2xl shadow-slate-900/20 overflow-hidden border border-white/70 max-h-[calc(100vh-2rem)] overflow-y-auto">
+                <div class="grid lg:grid-cols-[0.95fr,1.05fr]">
+                    <div class="booking-highlight px-6 py-8 md:px-8 md:py-10 text-white">
+                        <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em]">
+                            <i class="fas fa-shield-halved"></i>
+                            <span data-i18n="modal_badge">Secure Booking</span>
+                        </div>
+                        <div class="mt-6">
+                            <h3 class="text-3xl font-bold leading-tight" data-i18n="modal_title">Secure Online Booking</h3>
+                            <p class="mt-3 text-sm md:text-base text-cyan-50/90 leading-relaxed" data-i18n="modal_subtitle">Complete your trip details below and continue to BayarCash checkout.</p>
+                        </div>
+                        <div class="mt-8 space-y-4">
+                            <div class="booking-summary-card rounded-3xl p-5">
+                                <p class="text-xs uppercase tracking-[0.2em] text-cyan-100/80" data-i18n="modal_car">Selected Car</p>
+                                <p id="booking-summary-car" class="mt-2 text-2xl font-semibold">Perodua Axia</p>
+                                <div class="mt-5 grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                                    <div class="rounded-2xl bg-white/10 px-4 py-3">
+                                        <p class="text-cyan-100/80" data-i18n="modal_rate">Rate / Day</p>
+                                        <p id="booking-summary-rate" class="mt-1 font-semibold text-white">RM135.00</p>
+                                    </div>
+                                    <div class="rounded-2xl bg-white/10 px-4 py-3">
+                                        <p class="text-cyan-100/80" data-i18n="modal_deposit">Refundable Deposit</p>
+                                        <p id="booking-summary-deposit" class="mt-1 font-semibold text-white">RM100.00</p>
+                                    </div>
+                                    <div class="rounded-2xl bg-white/10 px-4 py-3">
+                                        <p class="text-cyan-100/80" data-i18n="modal_days">Rental Duration</p>
+                                        <p id="booking-summary-days" class="mt-1 font-semibold text-white">-</p>
+                                    </div>
+                                    <div class="rounded-2xl bg-white/10 px-4 py-3">
+                                        <p class="text-cyan-100/80" data-i18n="modal_delivery_charge">Delivery Charge</p>
+                                        <p id="booking-summary-delivery" class="mt-1 font-semibold text-white">-</p>
+                                    </div>
+                                    <div class="rounded-2xl bg-white/10 px-4 py-3">
+                                        <p class="text-cyan-100/80" data-i18n="modal_collection_charge">Return Pickup Charge</p>
+                                        <p id="booking-summary-collection" class="mt-1 font-semibold text-white">-</p>
+                                    </div>
+                                    <div class="rounded-2xl bg-white/10 px-4 py-3">
+                                        <p class="text-cyan-100/80" data-i18n="modal_total">Estimated Total</p>
+                                        <p id="booking-summary-total" class="mt-1 font-semibold text-white">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="rounded-3xl border border-white/15 bg-white/10 px-5 py-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-10 h-10 rounded-2xl bg-white/15 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-receipt text-sm"></i>
+                                    </div>
+                                    <p class="text-sm leading-relaxed text-cyan-50/90" data-i18n="modal_total_note">Checkout amount includes rental charges and refundable deposit. Deposit will be returned based on the rental terms after vehicle handover.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-6 py-8 md:px-8 md:py-10">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-afwaja-teal" data-i18n="modal_form_label">Booking Details</p>
+                                <p class="mt-2 text-sm text-slate-500" data-i18n="modal_form_desc">We will use these details to prepare your BayarCash checkout.</p>
+                            </div>
+                            <button type="button" id="booking-modal-close" class="w-11 h-11 rounded-2xl border border-slate-200 text-slate-500 hover:text-afwaja-navy hover:border-slate-300 transition-colors" aria-label="Close booking form">
+                                <i class="fas fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+
+                        <form id="booking-form" class="mt-8 space-y-5">
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="booking-pickup-date" class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="modal_date">Pick-up Date</label>
+                                    <input id="booking-pickup-date" name="pickupDate" type="date" lang="en-GB" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:outline-none focus:ring-4 focus:ring-cyan-100">
+                                </div>
+                                <div>
+                                    <label for="booking-return-date" class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="modal_return_date">Return Date</label>
+                                    <input id="booking-return-date" name="returnDate" type="date" lang="en-GB" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:outline-none focus:ring-4 focus:ring-cyan-100">
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="booking-pickup-time" class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="modal_pickup_time">Pick-up Time</label>
+                                    <select id="booking-pickup-time" name="pickupTime" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:outline-none focus:ring-4 focus:ring-cyan-100">
+                                        <option value="" data-i18n="modal_select_time">Select time</option>
+                                    </select>
+                                    <p class="mt-2 text-xs leading-relaxed text-slate-500" data-i18n="modal_pickup_time_note">Bookings can only be made at least 12 hours in advance.</p>
+                                </div>
+                                <div>
+                                    <label for="booking-return-time" class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="modal_return_time">Return Time</label>
+                                    <select id="booking-return-time" name="returnTime" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:outline-none focus:ring-4 focus:ring-cyan-100">
+                                        <option value="" data-i18n="modal_select_time">Select time</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="relative">
+                                    <label for="booking-pickup-location" class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="modal_pickup_location">Pick-up Location</label>
+                                    <label class="mb-3 inline-flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                                        <input id="booking-pickup-homebase" name="pickupAtHomeBase" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-afwaja-teal focus:ring-afwaja-teal">
+                                        <span data-i18n="modal_homebase_free">Afwaja Car Rental (Free)</span>
+                                    </label>
+                                    <input id="booking-pickup-location" name="pickupLocation" type="text" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:outline-none focus:ring-4 focus:ring-cyan-100" data-i18n-placeholder="placeholder_location" placeholder="Type your location">
+                                    <div id="booking-pickup-location-suggestions" class="hidden absolute left-0 right-0 top-full mt-2 rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10 z-20 overflow-hidden"></div>
+                                </div>
+                                <div class="relative">
+                                    <label for="booking-return-location" class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="modal_return_location">Return Location</label>
+                                    <label class="mb-3 inline-flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                                        <input id="booking-return-homebase" name="returnAtHomeBase" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-afwaja-teal focus:ring-afwaja-teal">
+                                        <span data-i18n="modal_homebase_free">Afwaja Car Rental (Free)</span>
+                                    </label>
+                                    <input id="booking-return-location" name="returnLocation" type="text" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:outline-none focus:ring-4 focus:ring-cyan-100" data-i18n-placeholder="placeholder_location" placeholder="Type your location">
+                                    <div id="booking-return-location-suggestions" class="hidden absolute left-0 right-0 top-full mt-2 rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10 z-20 overflow-hidden"></div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-3xl border border-cyan-100 bg-cyan-50 px-5 py-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-afwaja-teal shadow-sm flex-shrink-0">
+                                        <i class="fas fa-route"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-semibold text-slate-800" data-i18n="modal_distance_note_title">Distance-Based Delivery Charges</p>
+                                        <p class="mt-1 text-sm text-slate-500" data-i18n="modal_distance_note_desc">Pickup and return transport are calculated from Afwaja Car Rental Cyberjaya at RM2.00 per km using actual road distance.</p>
+                                        <p id="booking-distance-feedback" class="mt-3 text-sm font-medium text-slate-700">Enter both locations to calculate delivery and pickup charges.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="booking-name" class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="modal_name">Full Name</label>
+                                    <input id="booking-name" name="customerName" type="text" autocomplete="name" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:outline-none focus:ring-4 focus:ring-cyan-100" data-i18n-placeholder="placeholder_name" placeholder="Type your name">
+                                </div>
+                                <div>
+                                    <label for="booking-phone" class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="modal_phone">Phone Number</label>
+                                    <input id="booking-phone" name="customerPhone" type="tel" autocomplete="tel" inputmode="tel" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:outline-none focus:ring-4 focus:ring-cyan-100" data-i18n-placeholder="placeholder_phone" placeholder="Type your phone number">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="booking-email" class="block text-sm font-semibold text-slate-700 mb-2" data-i18n="modal_email">Email Address</label>
+                                <input id="booking-email" name="customerEmail" type="email" autocomplete="email" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:outline-none focus:ring-4 focus:ring-cyan-100" data-i18n-placeholder="placeholder_email" placeholder="Type your email">
+                            </div>
+
+                            <div class="rounded-3xl border border-slate-200 bg-slate-50/80 px-5 py-5 md:px-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center text-afwaja-teal shadow-sm flex-shrink-0 border border-slate-100">
+                                        <i class="fas fa-building-columns"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-semibold tracking-wide text-slate-800" data-i18n="modal_bank_note_title">Refund Bank Details</p>
+                                        <p class="mt-1 text-sm leading-relaxed text-slate-500" data-i18n="modal_bank_note_desc">Deposit refund will be processed to the bank account below after the vehicle is returned and inspection is completed.</p>
+                                    </div>
+                                </div>
+                                <div class="mt-5 grid grid-cols-1 gap-4">
+                                    <div class="rounded-2xl border border-white/70 bg-white px-4 py-4 shadow-sm">
+                                        <label for="booking-bank-name" class="block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 mb-2" data-i18n="modal_bank_name">Bank Name</label>
+                                        <input id="booking-bank-name" name="bankName" type="text" required class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:bg-white focus:outline-none focus:ring-4 focus:ring-cyan-100" data-i18n-placeholder="placeholder_bank" placeholder="Type your bank name">
+                                    </div>
+                                    <div class="rounded-2xl border border-white/70 bg-white px-4 py-4 shadow-sm">
+                                        <label for="booking-bank-account-name" class="block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 mb-2" data-i18n="modal_account_name">Account Holder Name</label>
+                                        <input id="booking-bank-account-name" name="bankAccountName" type="text" required class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:bg-white focus:outline-none focus:ring-4 focus:ring-cyan-100" data-i18n-placeholder="placeholder_account_name" placeholder="Type account holder name">
+                                    </div>
+                                    <div class="rounded-2xl border border-white/70 bg-white px-4 py-4 shadow-sm">
+                                        <label for="booking-bank-account-number" class="block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 mb-2" data-i18n="modal_account_number">Account Number</label>
+                                        <input id="booking-bank-account-number" name="bankAccountNumber" type="text" inputmode="numeric" required class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:bg-white focus:outline-none focus:ring-4 focus:ring-cyan-100" data-i18n-placeholder="placeholder_account_number" placeholder="Type account number">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="booking-form-error" class="hidden rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"></div>
+
+                            <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-afwaja-teal shadow-sm flex-shrink-0">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-slate-800" data-i18n="modal_payment_note_title">Secure BayarCash Checkout</p>
+                                        <p class="mt-1 text-sm text-slate-500" data-i18n="modal_payment_note_desc">After you submit this form, you will be redirected to BayarCash to complete payment securely.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
+                                <button type="button" data-booking-close class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-600 hover:border-slate-300 hover:text-slate-800 transition-colors" data-i18n="modal_cancel">Cancel</button>
+                                <button type="submit" id="booking-submit-button" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1f2d3d] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 border border-[#1f2d3d] hover:bg-[#16212e] transition-colors">
+                                    <i class="fas fa-credit-card text-white"></i>
+                                    <span id="booking-submit-text" class="text-white" data-i18n="modal_submit">Proceed to BayarCash</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Our Fleet Section -->
+    <section id="fleet" class="py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-sm font-bold text-afwaja-teal uppercase tracking-wider mb-2" data-i18n="fleet_label">Our Fleet</h2>
+                <h3 class="text-3xl md:text-4xl font-bold text-afwaja-navy" data-i18n="fleet_title">Choose Your Perfect Ride</h3>
+            </div>
+
+            <!-- Fleet Container (Auto-generated by JS) -->
+            <div id="fleet-container" class="space-y-16">
+                <!-- Javascript akan letak semua kereta dan kumpulan kat dalam ni -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-sm font-bold text-afwaja-teal uppercase tracking-wider mb-2" data-i18n="testi_label">Testimonials</h2>
+                <h3 class="text-3xl md:text-4xl font-bold text-afwaja-navy" data-i18n="testi_title">What Our Clients Say</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Review 1 -->
+                <div class="bg-slate-50 p-8 rounded-2xl relative">
+                    <i class="fas fa-quote-left text-4xl text-afwaja-cyan/20 absolute top-6 left-6"></i>
+                    <div class="relative z-10">
+                        <div class="flex text-yellow-400 mb-4 text-sm">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="text-slate-600 mb-6 italic" data-i18n="review_1">"Kereta bersih, wangi dan tip-top. Proses ambil dan pulang kereta pun sangat mudah. Terbaik Afwaja!"</p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-slate-300 flex items-center justify-center font-bold text-slate-600">F</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">Faizal A.</h4>
+                                <span class="text-xs text-slate-500">Kuala Lumpur</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 2 -->
+                <div class="bg-slate-50 p-8 rounded-2xl relative">
+                    <i class="fas fa-quote-left text-4xl text-afwaja-cyan/20 absolute top-6 left-6"></i>
+                    <div class="relative z-10">
+                        <div class="flex text-yellow-400 mb-4 text-sm">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="text-slate-600 mb-6 italic" data-i18n="review_2">"Very responsive customer service via WhatsApp. The Myvi I rented was well-maintained. Highly recommended for tourists."</p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-slate-300 flex items-center justify-center font-bold text-slate-600">S</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">Sarah J.</h4>
+                                <span class="text-xs text-slate-500">Penang</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 3 -->
+                <div class="bg-slate-50 p-8 rounded-2xl relative">
+                    <i class="fas fa-quote-left text-4xl text-afwaja-cyan/20 absolute top-6 left-6"></i>
+                    <div class="relative z-10">
+                        <div class="flex text-yellow-400 mb-4 text-sm">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="text-slate-600 mb-6 italic" data-i18n="review_3">"Sewa Vellfire untuk trip keluarga. Harga sangat berpatutan dan layanan memuaskan. Akan repeat lagi nanti."</p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-slate-300 flex items-center justify-center font-bold text-slate-600">K</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">Khairul N.</h4>
+                                <span class="text-xs text-slate-500">Shah Alam</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Terms Section -->
+    <section id="terms" class="py-20 bg-slate-800 text-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <i class="fas fa-file-contract text-4xl text-afwaja-cyan mb-4"></i>
+                <h3 class="text-3xl font-bold" data-i18n="terms_title">Rental Terms & Conditions</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Term 1 -->
+                <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-600 hover:border-afwaja-cyan transition-colors">
+                    <h4 class="font-bold text-afwaja-cyan text-lg mb-2 flex items-center gap-2">
+                        <i class="fas fa-id-card"></i> <span data-i18n="term1_title">Required Documents</span>
+                    </h4>
+                    <p class="text-slate-300 text-sm leading-relaxed" data-i18n="term1_desc">Valid driving license, original IC / Passport, and latest utility bill (water/electric) or student card.</p>
+                </div>
+                
+                <!-- Term 2 -->
+                <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-600 hover:border-afwaja-cyan transition-colors">
+                    <h4 class="font-bold text-afwaja-cyan text-lg mb-2 flex items-center gap-2">
+                        <i class="fas fa-money-bill-wave"></i> <span data-i18n="term2_title">Security Deposit</span>
+                    </h4>
+                    <p class="text-slate-300 text-sm leading-relaxed" data-i18n="term2_desc">A refundable security deposit is required upon vehicle handover. Will be refunded within 3-7 working days after return.</p>
+                </div>
+
+                <!-- Term 3 -->
+                <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-600 hover:border-afwaja-cyan transition-colors">
+                    <h4 class="font-bold text-afwaja-cyan text-lg mb-2 flex items-center gap-2">
+                        <i class="fas fa-gas-pump"></i> <span data-i18n="term3_title">Fuel Policy</span>
+                    </h4>
+                    <p class="text-slate-300 text-sm leading-relaxed" data-i18n="term3_desc">Vehicles must be returned with the same fuel level as when collected. Surcharges apply for insufficient fuel.</p>
+                </div>
+
+                <!-- Term 4 -->
+                <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-600 hover:border-afwaja-cyan transition-colors">
+                    <h4 class="font-bold text-afwaja-cyan text-lg mb-2 flex items-center gap-2">
+                        <i class="fas fa-map-marked-alt"></i> <span data-i18n="term4_title">Driving Area Limits</span>
+                    </h4>
+                    <p class="text-slate-300 text-sm leading-relaxed" data-i18n="term4_desc">Vehicles are strictly for use within Peninsular Malaysia. Off-road driving or track racing is strictly prohibited.</p>
+                </div>
+
+                <!-- Term 5 -->
+                <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-600 hover:border-afwaja-cyan transition-colors">
+                    <h4 class="font-bold text-afwaja-cyan text-lg mb-2 flex items-center gap-2">
+                        <i class="fas fa-receipt"></i> <span data-i18n="term5_title">Traffic Fines & Summons</span>
+                    </h4>
+                    <p class="text-slate-300 text-sm leading-relaxed" data-i18n="term5_desc">The renter is fully responsible for all traffic summons, parking tickets, and tolls incurred during the rental period.</p>
+                </div>
+
+                <!-- Term 6 -->
+                <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-600 hover:border-afwaja-cyan transition-colors">
+                    <h4 class="font-bold text-afwaja-cyan text-lg mb-2 flex items-center gap-2">
+                        <i class="fas fa-calendar-times"></i> <span data-i18n="term6_title">Extension & Cancellation</span>
+                    </h4>
+                    <p class="text-slate-300 text-sm leading-relaxed" data-i18n="term6_desc">Extensions must be informed 24 hours prior. Cancellations made less than 48 hours will forfeit the booking fee.</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="terms.html" target="_blank" class="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-lg font-medium transition-colors border border-slate-500 hover:border-afwaja-cyan">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span data-i18n="btn_open_terms">Read Full Terms Document</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <img class="h-10 w-auto brightness-0 invert" src="https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2KFY3QZ342VQBTS02D1K8E.png" alt="Afwaja Logo" onerror="this.style.display='none'">
+                    </div>
+                    <p class="text-sm mb-4" data-i18n="footer_desc">Your trusted partner for comfortable, safe, and affordable car rentals across the city.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4 uppercase text-sm tracking-wider" data-i18n="footer_links">Quick Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#about" class="hover:text-afwaja-cyan transition" data-i18n="nav_about">About Us</a></li>
+                        <li><a href="#fleet" class="hover:text-afwaja-cyan transition" data-i18n="nav_fleet">Our Fleet</a></li>
+                        <li><a href="#testimonials" class="hover:text-afwaja-cyan transition" data-i18n="nav_testimonials">Testimonials</a></li>
+                        <li><a href="logistics.html" target="_blank" rel="noopener noreferrer" class="hover:text-afwaja-cyan transition" data-i18n="footer_logistics">Logistics Calculator</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4 uppercase text-sm tracking-wider" data-i18n="footer_contact">Contact Us</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-phone mt-1 text-afwaja-cyan"></i>
+                            <span>011-1512 2092</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-envelope mt-1 text-afwaja-cyan"></i>
+                            <span>afwajatrading@gmail.com</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-map-marker-alt mt-1 text-afwaja-cyan"></i>
+                            <span>Cyberjaya, Selangor</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-slate-800 text-center text-sm">
+                <p>&copy; <span id="year"></span> Afwaja Car Rental. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/fleet-data.js"></script>
+    <script src="assets/js/shared.js"></script>
+    <script src="assets/js/site-config.js"></script>
+    <script src="assets/js/runtime-config.js"></script>
+    <script src="assets/js/index.js"></script>
+</body>
+</html>
