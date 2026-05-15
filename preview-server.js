@@ -653,6 +653,23 @@ function createBookingSummaryHtml(record) {
     `;
 }
 
+function createRefundBankDetailsHtml(record) {
+    const refundDetails = [
+        ["Bank Name", record.refundBankName],
+        ["Account Holder Name", record.refundAccountName],
+        ["Account Number", record.refundAccountNumber],
+    ];
+
+    return `
+        <div style="margin:20px 0 0;padding:20px 20px 10px;border:1px solid #e2e8f0;border-radius:20px;background:#ffffff;">
+            <h2 style="margin:0 0 14px;font-size:17px;line-height:1.3;color:#1f2d3d;">Refund Bank Details</h2>
+            <table style="width:100%;border-collapse:collapse;border-spacing:0;">
+                ${createEmailInfoTable(refundDetails)}
+            </table>
+        </div>
+    `;
+}
+
 function createEmailLayout({
     eyebrow,
     title,
@@ -734,7 +751,7 @@ function createCustomerEmail(record) {
 }
 
 function createAdminEmail(record) {
-    const summaryHtml = createBookingSummaryHtml(record);
+    const summaryHtml = `${createBookingSummaryHtml(record)}${createRefundBankDetailsHtml(record)}`;
     const intro = `A customer has completed payment successfully via BayarCash. Please review the booking summary below and proceed with follow-up.`;
     const closingText = "Please contact the customer for final confirmation, logistics coordination, and vehicle handover arrangements.";
 
@@ -760,6 +777,9 @@ function createAdminEmail(record) {
             `Customer: ${record.customerName} (${record.customerEmail})`,
             `Car: ${record.carName}`,
             `Total Paid: ${formatMaybeCurrency(record.amount)}`,
+            `Refund Bank Name: ${record.refundBankName || "-"}`,
+            `Refund Account Holder: ${record.refundAccountName || "-"}`,
+            `Refund Account Number: ${record.refundAccountNumber || "-"}`,
         ].join("\n"),
     };
 }
@@ -797,7 +817,7 @@ function createCustomerUnsuccessfulEmail(record) {
 }
 
 function createAdminUnsuccessfulEmail(record) {
-    const summaryHtml = createBookingSummaryHtml(record);
+    const summaryHtml = `${createBookingSummaryHtml(record)}${createRefundBankDetailsHtml(record)}`;
     const statusLabel = getPaymentStateLabel(record.state);
     const intro = `A booking payment attempt could not be completed. Please review the booking summary below and keep it for follow-up if the customer contacts your team.`;
     const closingText = "No vehicle should be reserved until the customer completes a successful payment. If needed, contact the customer to assist with a new payment attempt.";
@@ -824,6 +844,9 @@ function createAdminUnsuccessfulEmail(record) {
             `Status: ${statusLabel}`,
             `Customer: ${record.customerName} (${record.customerEmail})`,
             `Car: ${record.carName}`,
+            `Refund Bank Name: ${record.refundBankName || "-"}`,
+            `Refund Account Holder: ${record.refundAccountName || "-"}`,
+            `Refund Account Number: ${record.refundAccountNumber || "-"}`,
         ].join("\n"),
     };
 }
@@ -908,6 +931,9 @@ function createEmailPreviewRecord() {
         deliveryCharge: 58.16,
         returnPickupCharge: 0,
         refundableDeposit: 200,
+        refundBankName: "Maybank",
+        refundAccountName: "Aisyah Rahman",
+        refundAccountNumber: "112233445566",
         amount: 622.66,
         adminEmail: getEmailConfig().adminEmail || "admin@mail.afwajarental.com",
         state: "success",
@@ -1677,6 +1703,9 @@ async function handleCreatePaymentIntent(request, response) {
             deliveryCharge: formatAmount(deliveryQuote.pickupCharge),
             returnPickupCharge: formatAmount(deliveryQuote.collectionCharge),
             refundableDeposit: formatAmount(selectedCar.deposit),
+            refundBankName: bankName,
+            refundAccountName: bankAccountName,
+            refundAccountNumber: bankAccountNumber,
             deliveryQuote,
             status: parsedBody.status || "",
             state: getPaymentState(parsedBody.status),
