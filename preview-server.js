@@ -118,10 +118,6 @@ function isTestCheckoutCar(carName) {
 }
 
 function getCarDeposit(groupName, carName) {
-    if (isTestCheckoutCar(carName)) {
-        return 0;
-    }
-
     return getDepositByGroup(groupName);
 }
 
@@ -176,8 +172,13 @@ function createRuntimeConfigScript() {
 }
 
 function getCorsConfig() {
+    const allowedOrigins = trimValue(process.env.CORS_ALLOWED_ORIGIN)
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean);
+
     return {
-        allowedOrigin: trimValue(process.env.CORS_ALLOWED_ORIGIN),
+        allowedOrigins,
     };
 }
 
@@ -185,12 +186,12 @@ function applyCorsHeaders(request, response) {
     const corsConfig = getCorsConfig();
     const requestOrigin = trimValue(request.headers.origin);
 
-    if (!corsConfig.allowedOrigin) {
+    if (!corsConfig.allowedOrigins.length) {
         return;
     }
 
-    if (corsConfig.allowedOrigin === "*" || corsConfig.allowedOrigin === requestOrigin) {
-        response.setHeader("Access-Control-Allow-Origin", corsConfig.allowedOrigin === "*" ? "*" : requestOrigin);
+    if (corsConfig.allowedOrigins.includes("*") || corsConfig.allowedOrigins.includes(requestOrigin)) {
+        response.setHeader("Access-Control-Allow-Origin", corsConfig.allowedOrigins.includes("*") ? "*" : requestOrigin);
         response.setHeader("Vary", "Origin");
     }
 
@@ -1574,9 +1575,7 @@ async function handleCreatePaymentIntent(request, response) {
         return;
     }
 
-    const amount = isTestCheckoutCar(selectedCar.name)
-        ? formatAmount(testCheckoutConfig.total)
-        : formatAmount(rentalCharges + selectedCar.deposit + deliveryQuote.totalCharge);
+    const amount = formatAmount(rentalCharges + selectedCar.deposit + deliveryQuote.totalCharge);
     const paymentIntentPayload = {
         payment_channel: config.paymentChannel,
         portal_key: config.portalKey,
@@ -1616,7 +1615,7 @@ async function handleCreatePaymentIntent(request, response) {
             return_pickup_charge: formatAmount(deliveryQuote.collectionCharge),
             total_transport_charge: formatAmount(deliveryQuote.totalCharge),
             total_payable: amount,
-            test_checkout_override: isTestCheckoutCar(selectedCar.name),
+            test_checkout_override: false,
             refund_bank_name: bankName,
             refund_account_name: bankAccountName,
             refund_account_number: bankAccountNumber,
