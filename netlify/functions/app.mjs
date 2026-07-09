@@ -494,6 +494,64 @@ function buildChecksum(payload, secretKey) {
         .digest("hex");
 }
 
+function buildChecksumWithOptions(payload, fields, secretKey, options = {}) {
+    const {
+        delimiter = "|",
+        sortFields = false,
+        secretFirst = false,
+        algorithm = "sha256",
+    } = options;
+    const normalizedFields = sortFields ? [...fields].sort() : [...fields];
+    const values = normalizedFields.map((key) => trimValue(payload[key]));
+    const chunks = secretFirst ? [trimValue(secretKey), ...values] : [...values, trimValue(secretKey)];
+
+    return crypto
+        .createHash(algorithm)
+        .update(chunks.join(delimiter))
+        .digest("hex");
+}
+
+function getPaymentIntentChecksumAttempts(payload, secretKey) {
+    const fieldSets = [
+        ["payment_channel", "order_number", "amount", "payer_name", "payer_email"],
+        ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email"],
+        ["payment_channel", "order_number", "amount", "payer_name", "payer_email", "payer_telephone_number"],
+        ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email", "return_url"],
+        ["payment_channel", "order_number", "amount", "payer_name", "payer_email", "payer_telephone_number", "return_url"],
+        ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email", "payer_telephone_number", "return_url"],
+    ];
+
+    if (payload.callback_url) {
+        fieldSets.push(
+            ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email", "callback_url"],
+            ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email", "return_url", "callback_url"],
+        );
+    }
+
+    const styles = [
+        { label: "ordered-pipe", delimiter: "|", sortFields: false, secretFirst: false, algorithm: "sha256" },
+        { label: "ordered-none", delimiter: "", sortFields: false, secretFirst: false, algorithm: "sha256" },
+        { label: "ordered-pipe-secret-first", delimiter: "|", sortFields: false, secretFirst: true, algorithm: "sha256" },
+        { label: "ordered-none-secret-first", delimiter: "", sortFields: false, secretFirst: true, algorithm: "sha256" },
+        { label: "ordered-none-md5", delimiter: "", sortFields: false, secretFirst: false, algorithm: "md5" },
+    ];
+
+    return styles.flatMap((style) => fieldSets.map((fields) => ({
+        label: `${style.label} :: ${fields.join(",")}`,
+        checksum: buildChecksumWithOptions(payload, fields, secretKey, style),
+    })));
+}
+
+function isBayarcashChecksumMismatch(parsedBody, rawText = "") {
+    const haystack = [
+        trimValue(parsedBody?.message),
+        trimValue(parsedBody?.error),
+        trimValue(rawText),
+    ].join(" ").toLowerCase();
+
+    return haystack.includes("checksum mismatch");
+}
+
 function verifyChecksum(payload, checksum, secretKey) {
     if (!trimValue(checksum) || !trimValue(secretKey)) {
         return false;
@@ -1567,13 +1625,14 @@ async function handleCreatePaymentIntent(request) {
         paymentIntentPayload.callback_url = config.callbackUrl;
     }
 
-        paymentIntentPayload.checksum = buildChecksum({
-            payment_channel: paymentIntentPayload.payment_channel,
-            order_number: paymentIntentPayload.order_number,
-            amount: paymentIntentPayload.amount,
-            payer_name: paymentIntentPayload.payer_name,
-            payer_email: paymentIntentPayload.payer_email,
-        }, config.apiSecretKey);
+    const checksumAttempts = getPaymentIntentChecksumAttempts(paymentIntentPayload, config.apiSecretKey);
+    paymentIntentPayload.checksum = checksumAttempts[0]?.checksum || buildChecksum({
+        payment_channel: paymentIntentPayload.payment_channel,
+        order_number: paymentIntentPayload.order_number,
+        amount: paymentIntentPayload.amount,
+        payer_name: paymentIntentPayload.payer_name,
+        payer_email: paymentIntentPayload.payer_email,
+    }, config.apiSecretKey);
 
     const baseRecord = {
         orderNumber,
@@ -1631,22 +1690,44 @@ async function handleCreatePaymentIntent(request) {
     }
 
     try {
-        const apiResponse = await fetch(`${config.apiBaseUrl}/payment-intents`, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${config.personalAccessToken}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(paymentIntentPayload),
-        });
+        let apiResponse = null;
+        let responseBody = "";
+        let parsedBody = {};
 
-        const responseBody = await apiResponse.text();
-        const parsedBody = responseBody ? JSON.parse(responseBody) : {};
+        for (let attemptIndex = 0; attemptIndex < checksumAttempts.length; attemptIndex += 1) {
+            const attempt = checksumAttempts[attemptIndex];
+            paymentIntentPayload.checksum = attempt.checksum;
 
-        if (!apiResponse.ok) {
+            apiResponse = await fetch(`${config.apiBaseUrl}/payment-intents`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${config.personalAccessToken}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(paymentIntentPayload),
+            });
+
+            responseBody = await apiResponse.text();
+
+            try {
+                parsedBody = responseBody ? JSON.parse(responseBody) : {};
+            } catch {
+                parsedBody = {};
+            }
+
+            if (apiResponse.ok) {
+                break;
+            }
+
+            if (!isBayarcashChecksumMismatch(parsedBody, responseBody)) {
+                break;
+            }
+        }
+
+        if (!apiResponse?.ok) {
             return jsonResponse(502, {
                 error: parsedBody?.message || parsedBody?.error || "BayarCash rejected the payment request.",
-                status: apiResponse.status,
+                status: apiResponse?.status || 502,
             }, headers);
         }
 
