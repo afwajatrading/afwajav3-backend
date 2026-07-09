@@ -1,0 +1,19 @@
+{
+  "name": "afwaja-car-rental",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Afwaja Car Rental site with Netlify Functions backend.",
+  "dependencies": {
+    "@netlify/blobs": "latest"
+  },
+  "scripts": {
+    "dev:local": "node local-dev-server.mjs",
+    "check": "node --check netlify/functions/app.mjs && node --check local-dev-server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "netlify-cli": "^26.2.0"
+  }
+}
