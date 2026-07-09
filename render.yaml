@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: afwaja-backend
-    runtime: node
-    plan: starter
-    rootDir: .
-    buildCommand: ""
-    startCommand: npm start
-    autoDeploy: true
