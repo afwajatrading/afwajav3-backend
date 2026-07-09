@@ -9,7 +9,7 @@ const moduleFilename = fileURLToPath(import.meta.url);
 const moduleDirname = path.dirname(moduleFilename);
 const rootDir = path.resolve(moduleDirname, "..", "..");
 const require = createRequire(import.meta.url);
-const { fleetData = {} } = require("../../assets/js/fleet-data.js");
+const { fleetData = {} } = require("./_shared/fleet-catalog.cjs");
 
 const homeBaseBias = {
     latitude: 2.9226,
