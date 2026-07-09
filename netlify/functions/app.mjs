@@ -5,9 +5,9 @@ import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import { getStore } from "@netlify/blobs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, "..", "..");
+const moduleFilename = fileURLToPath(import.meta.url);
+const moduleDirname = path.dirname(moduleFilename);
+const rootDir = path.resolve(moduleDirname, "..", "..");
 const require = createRequire(import.meta.url);
 const { fleetData = {} } = require("../../assets/js/fleet-data.js");
 
