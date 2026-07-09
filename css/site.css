@@ -1,1 +1,129 @@
+.gradient-text {
+    background: linear-gradient(to right, #22d3ee, #0d9488);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 
+.gradient-bg {
+    background: linear-gradient(135deg, #22d3ee 0%, #0d9488 100%);
+}
+
+.hero-surface {
+    background:
+        radial-gradient(circle at top left, rgba(34, 211, 238, 0.3), transparent 32%),
+        radial-gradient(circle at top right, rgba(13, 148, 136, 0.22), transparent 28%),
+        linear-gradient(180deg, rgba(239, 252, 255, 0.98) 0%, rgba(247, 250, 252, 0.94) 55%, rgba(248, 250, 252, 1) 100%);
+}
+
+.hero-grid-pattern {
+    background-image:
+        linear-gradient(rgba(34, 211, 238, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(13, 148, 136, 0.08) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(180deg, rgba(255, 255, 255, 0.7), transparent 90%);
+}
+
+.hero-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(16px);
+    opacity: 0.9;
+}
+
+.hero-orb-cyan {
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.38) 0%, rgba(34, 211, 238, 0.08) 55%, transparent 75%);
+}
+
+.hero-orb-teal {
+    background: radial-gradient(circle, rgba(13, 148, 136, 0.32) 0%, rgba(13, 148, 136, 0.08) 55%, transparent 75%);
+}
+
+.hero-panel {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.64));
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+.hero-badge {
+    background: linear-gradient(135deg, rgba(31, 45, 61, 0.94), rgba(13, 148, 136, 0.94));
+    box-shadow: 0 14px 32px rgba(31, 45, 61, 0.16);
+}
+
+.hero-chip {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.96));
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 10px 24px rgba(148, 163, 184, 0.14);
+}
+
+.hero-stat-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(239, 248, 251, 0.88));
+    border: 1px solid rgba(186, 230, 253, 0.58);
+    box-shadow: 0 16px 32px rgba(148, 163, 184, 0.14);
+}
+
+.hero-offer-card {
+    background:
+        linear-gradient(white, white) padding-box,
+        linear-gradient(135deg, rgba(34, 211, 238, 0.55), rgba(13, 148, 136, 0.35), rgba(31, 45, 61, 0.2)) border-box;
+    border: 1px solid transparent;
+    box-shadow: 0 20px 38px rgba(148, 163, 184, 0.16);
+}
+
+.hero-offer-meta {
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.98));
+}
+
+.booking-highlight {
+    background:
+        radial-gradient(circle at top left, rgba(103, 232, 249, 0.38), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(45, 212, 191, 0.3), transparent 38%),
+        linear-gradient(145deg, #12324c 0%, #0f766e 48%, #0f172a 100%);
+}
+
+.booking-summary-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
+}
+
+.terms-hero {
+    background:
+        radial-gradient(circle at top left, rgba(34, 211, 238, 0.26), transparent 28%),
+        radial-gradient(circle at top right, rgba(13, 148, 136, 0.2), transparent 24%),
+        linear-gradient(135deg, #12324c 0%, #1f2d3d 52%, #0f172a 100%);
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+@media (min-width: 768px) {
+    .hero-orb {
+        filter: blur(28px);
+    }
+}
+
+@media (max-width: 640px) {
+    #booking-modal-shell {
+        width: 100vw;
+        min-height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+    }
+
+    #booking-modal-summary {
+        display: none;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}
+
+::selection {
+    background: #22d3ee;
+    color: #ffffff;
+}
