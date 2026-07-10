@@ -1411,6 +1411,81 @@ function normalizeReturnPayload(payload, verified, existingRecord = {}) {
     };
 }
 
+function encodeBookingSnapshot(record = {}) {
+    const snapshot = {
+        orderNumber: record.orderNumber || "",
+        carName: record.carName || "",
+        customerName: record.customerName || "",
+        customerEmail: record.customerEmail || "",
+        customerPhone: record.customerPhone || "",
+        amount: record.amount || "",
+        rentalDays: record.rentalDays || "",
+        pickupDate: record.pickupDate || "",
+        pickupTime: record.pickupTime || "",
+        pickupLocation: record.pickupLocation || "",
+        returnDate: record.returnDate || "",
+        returnTime: record.returnTime || "",
+        returnLocation: record.returnLocation || "",
+        rateLabel: record.rateLabel || "",
+        rentalCharges: record.rentalCharges || "",
+        deliveryCharge: record.deliveryCharge || "",
+        returnPickupCharge: record.returnPickupCharge || "",
+        refundableDeposit: record.refundableDeposit || "",
+        refundBankName: record.refundBankName || "",
+        refundAccountName: record.refundAccountName || "",
+        refundAccountNumber: record.refundAccountNumber || "",
+    };
+
+    return Buffer.from(JSON.stringify(snapshot), "utf8").toString("base64url");
+}
+
+function decodeBookingSnapshot(value) {
+    const encoded = trimValue(value);
+
+    if (!encoded) {
+        return {};
+    }
+
+    try {
+        const decoded = Buffer.from(encoded, "base64url").toString("utf8");
+        const parsed = JSON.parse(decoded);
+        return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+        return {};
+    }
+}
+
+function enrichRecordFromSnapshot(existingRecord = {}, snapshot = {}) {
+    if (!snapshot || typeof snapshot !== "object") {
+        return existingRecord;
+    }
+
+    return {
+        ...existingRecord,
+        orderNumber: existingRecord.orderNumber || snapshot.orderNumber || "",
+        carName: existingRecord.carName || snapshot.carName || "",
+        customerName: existingRecord.customerName || snapshot.customerName || "",
+        customerEmail: existingRecord.customerEmail || snapshot.customerEmail || "",
+        customerPhone: existingRecord.customerPhone || snapshot.customerPhone || "",
+        amount: existingRecord.amount || snapshot.amount || "",
+        rentalDays: existingRecord.rentalDays || snapshot.rentalDays || "",
+        pickupDate: existingRecord.pickupDate || snapshot.pickupDate || "",
+        pickupTime: existingRecord.pickupTime || snapshot.pickupTime || "",
+        pickupLocation: existingRecord.pickupLocation || snapshot.pickupLocation || "",
+        returnDate: existingRecord.returnDate || snapshot.returnDate || "",
+        returnTime: existingRecord.returnTime || snapshot.returnTime || "",
+        returnLocation: existingRecord.returnLocation || snapshot.returnLocation || "",
+        rateLabel: existingRecord.rateLabel || snapshot.rateLabel || "",
+        rentalCharges: existingRecord.rentalCharges || snapshot.rentalCharges || "",
+        deliveryCharge: existingRecord.deliveryCharge || snapshot.deliveryCharge || "",
+        returnPickupCharge: existingRecord.returnPickupCharge || snapshot.returnPickupCharge || "",
+        refundableDeposit: existingRecord.refundableDeposit || snapshot.refundableDeposit || "",
+        refundBankName: existingRecord.refundBankName || snapshot.refundBankName || "",
+        refundAccountName: existingRecord.refundAccountName || snapshot.refundAccountName || "",
+        refundAccountNumber: existingRecord.refundAccountNumber || snapshot.refundAccountNumber || "",
+    };
+}
+
 function buildMockPaymentReturnPayload(record) {
     return {
         record_type: "payment_intent",
@@ -1712,6 +1787,20 @@ async function handleCreatePaymentIntent(request) {
         deliveryQuote,
     };
 
+    const bookingSnapshot = encodeBookingSnapshot(baseRecord);
+
+    if (bookingSnapshot) {
+        const returnUrl = new URL(paymentIntentPayload.return_url);
+        returnUrl.searchParams.set("booking_snapshot", bookingSnapshot);
+        paymentIntentPayload.return_url = returnUrl.toString();
+
+        if (paymentIntentPayload.callback_url) {
+            const callbackUrl = new URL(paymentIntentPayload.callback_url);
+            callbackUrl.searchParams.set("booking_snapshot", bookingSnapshot);
+            paymentIntentPayload.callback_url = callbackUrl.toString();
+        }
+    }
+
     if (localPaymentBypass) {
         const mockRecord = {
             ...baseRecord,
@@ -1798,6 +1887,7 @@ async function handleVerifyReturn(request) {
     const transactionData = payload.transaction_id
         ? await fetchBayarcashTransaction(payload.transaction_id, config)
         : null;
+    const bookingSnapshot = decodeBookingSnapshot(payload.booking_snapshot);
     let verified = verifyChecksum(checksumPayload, payload.checksum, config.apiSecretKey);
 
     if (!verified && transactionData) {
@@ -1808,10 +1898,10 @@ async function handleVerifyReturn(request) {
     const normalizedPayload = normalizeReturnPayload(payload, verified, existingRecord || {});
 
     if (normalizedPayload.orderNumber) {
-        const mergedRecord = enrichRecordFromTransaction({
+        const mergedRecord = enrichRecordFromTransaction(enrichRecordFromSnapshot({
             ...(existingRecord || {}),
             ...normalizedPayload,
-        }, transactionData);
+        }, bookingSnapshot), transactionData);
         const finalRecord = await maybeSendPaymentNotifications(mergedRecord);
         await savePaymentRecord(finalRecord);
     }
@@ -1834,6 +1924,7 @@ async function handleCallback(request) {
     const transactionData = payload.transaction_id
         ? await fetchBayarcashTransaction(payload.transaction_id, config)
         : null;
+    const bookingSnapshot = decodeBookingSnapshot(payload.booking_snapshot);
     let verified = verifyChecksum(checksumPayload, payload.checksum, config.apiSecretKey);
 
     if (!verified && transactionData) {
@@ -1844,10 +1935,10 @@ async function handleCallback(request) {
     const normalizedPayload = normalizeReturnPayload(payload, verified, existingRecord || {});
 
     if (normalizedPayload.orderNumber) {
-        const mergedRecord = enrichRecordFromTransaction({
+        const mergedRecord = enrichRecordFromTransaction(enrichRecordFromSnapshot({
             ...(existingRecord || {}),
             ...normalizedPayload,
-        }, transactionData);
+        }, bookingSnapshot), transactionData);
         const finalRecord = await maybeSendPaymentNotifications(mergedRecord);
         await savePaymentRecord(finalRecord);
     }
