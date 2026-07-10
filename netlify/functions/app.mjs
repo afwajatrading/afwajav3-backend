@@ -530,6 +530,7 @@ function buildChecksumWithOptions(payload, fields, secretKey, options = {}) {
 }
 
 function getPaymentIntentChecksumAttempts(payload, secretKey) {
+    const allPresentFields = Object.keys(payload).filter((key) => key !== "checksum" && trimValue(payload[key]));
     const attempts = [
         {
             label: "ordered-pipe :: payment_channel,order_number,amount,payer_name,payer_email",
@@ -560,6 +561,26 @@ function getPaymentIntentChecksumAttempts(payload, secretKey) {
             label: "hmac-ordered-pipe :: portal_key,payment_channel,order_number,amount,payer_name,payer_email",
             fields: ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email"],
             style: { delimiter: "|", algorithm: "sha256", mode: "hmac" },
+        },
+        {
+            label: "ordered-pipe :: all-present-fields",
+            fields: allPresentFields,
+            style: { delimiter: "|", algorithm: "sha256" },
+        },
+        {
+            label: "ordered-none :: all-present-fields",
+            fields: allPresentFields,
+            style: { delimiter: "", algorithm: "sha256" },
+        },
+        {
+            label: "hmac-ordered-pipe :: all-present-fields",
+            fields: allPresentFields,
+            style: { delimiter: "|", algorithm: "sha256", mode: "hmac" },
+        },
+        {
+            label: "hmac-ordered-none :: all-present-fields",
+            fields: allPresentFields,
+            style: { delimiter: "", algorithm: "sha256", mode: "hmac" },
         },
     ];
 
