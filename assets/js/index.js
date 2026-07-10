@@ -1446,37 +1446,6 @@
         bookingFormError.classList.remove("hidden");
     }
 
-    function buildBayarcashDebugMessage(result = {}, fallbackMessage = "") {
-        const baseMessage = result.error || fallbackMessage;
-        const debug = result.debug;
-
-        if (!debug) {
-            return baseMessage;
-        }
-
-        const attemptList = Array.isArray(debug.attempts) ? debug.attempts : [];
-        const previewAttempts = attemptList.slice(0, 12);
-        const hasMoreAttempts = attemptList.length > previewAttempts.length;
-        const attemptedChecksums = previewAttempts.join(" | ");
-        const statusLabel = debug.status ? `Status: ${debug.status}. ` : "";
-        const attemptsSuffix = hasMoreAttempts ? ` | +${attemptList.length - previewAttempts.length} more` : "";
-        const attemptsLabel = attemptedChecksums ? `Checksum tried: ${attemptedChecksums}${attemptsSuffix}` : "";
-        const separator = baseMessage && (statusLabel || attemptsLabel) ? " " : "";
-
-        return `${baseMessage}${separator}${statusLabel}${attemptsLabel}`.trim();
-    }
-
-    function buildHttpErrorMessage(response, rawText, fallbackMessage = "") {
-        const statusPart = response?.status ? `HTTP ${response.status}` : "";
-        const textPart = `${rawText || ""}`
-            .replace(/\s+/g, " ")
-            .replace(/<[^>]+>/g, " ")
-            .trim()
-            .slice(0, 220);
-
-        return [fallbackMessage, statusPart, textPart].filter(Boolean).join(". ");
-    }
-
     function clearBookingError() {
         if (!bookingFormError) {
             return;
@@ -1565,22 +1534,11 @@
                 body: JSON.stringify(payload),
             });
 
-            const rawText = await response.text();
-            const result = (() => {
-                try {
-                    return rawText ? JSON.parse(rawText) : {};
-                } catch {
-                    return {};
-                }
-            })();
+            const result = await response.json().catch(() => ({}));
 
             if (!response.ok) {
                 const fallbackMessage = response.status === 503 ? t("booking_error_config") : t("booking_error_generic");
-                const debugMessage = buildBayarcashDebugMessage(result, fallbackMessage);
-                const detailedMessage = rawText && !Object.keys(result).length
-                    ? buildHttpErrorMessage(response, rawText, fallbackMessage)
-                    : debugMessage;
-                setBookingError(detailedMessage);
+                setBookingError(result.error || fallbackMessage);
                 return;
             }
 
