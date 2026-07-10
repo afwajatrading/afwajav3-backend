@@ -160,7 +160,7 @@ function parseNumberEnv(value, defaultValue) {
 
 function getTestCheckoutConfig() {
     return {
-        enabled: parseBooleanEnv(process.env.TEST_CHECKOUT_ENABLED, false),
+        enabled: parseBooleanEnv(process.env.TEST_CHECKOUT_ENABLED, true),
         carName: `${process.env.TEST_CHECKOUT_CAR_NAME || ""}`.trim() || "Perodua Axia",
         total: parseNumberEnv(process.env.TEST_CHECKOUT_TOTAL, 1),
     };
@@ -492,123 +492,6 @@ function buildChecksum(payload, secretKey) {
         .createHmac("sha256", trimValue(secretKey))
         .update(sortedValues.join("|"))
         .digest("hex");
-}
-
-function buildChecksumWithOptions(payload, fields, secretKey, options = {}) {
-    const {
-        delimiter = "|",
-        sortFields = false,
-        secretFirst = false,
-        algorithm = "sha256",
-        includeKeys = false,
-        pairSeparator = "=",
-        uppercase = false,
-        mode = "hash",
-    } = options;
-    const normalizedFields = sortFields ? [...fields].sort() : [...fields];
-    const values = normalizedFields.map((key) => {
-        const value = trimValue(payload[key]);
-        return includeKeys ? `${key}${pairSeparator}${value}` : value;
-    });
-    const message = values.join(delimiter);
-    let digest = "";
-
-    if (mode === "hmac") {
-        digest = crypto
-            .createHmac(algorithm, trimValue(secretKey))
-            .update(message)
-            .digest("hex");
-    } else {
-        const chunks = secretFirst ? [trimValue(secretKey), ...values] : [...values, trimValue(secretKey)];
-        digest = crypto
-            .createHash(algorithm)
-            .update(chunks.join(delimiter))
-            .digest("hex");
-    }
-
-    return uppercase ? digest.toUpperCase() : digest;
-}
-
-function getPaymentIntentChecksumAttempts(payload, secretKey) {
-    const attempts = [
-        {
-            label: "sorted-hmac-pipe :: payment_channel,order_number,amount,payer_name,payer_email",
-            checksum: buildChecksum({
-                payment_channel: payload.payment_channel,
-                order_number: payload.order_number,
-                amount: payload.amount,
-                payer_name: payload.payer_name,
-                payer_email: payload.payer_email,
-            }, secretKey),
-        },
-        {
-            label: "sorted-hmac-pipe :: portal_key,payment_channel,order_number,amount,payer_name,payer_email",
-            checksum: buildChecksum({
-                portal_key: payload.portal_key,
-                payment_channel: payload.payment_channel,
-                order_number: payload.order_number,
-                amount: payload.amount,
-                payer_name: payload.payer_name,
-                payer_email: payload.payer_email,
-            }, secretKey),
-        },
-        {
-            label: "ordered-pipe :: payment_channel,order_number,amount,payer_name,payer_email",
-            checksum: buildChecksumWithOptions(payload, ["payment_channel", "order_number", "amount", "payer_name", "payer_email"], secretKey, { delimiter: "|", algorithm: "sha256", sortFields: false }),
-        },
-        {
-            label: "ordered-none :: payment_channel,order_number,amount,payer_name,payer_email",
-            checksum: buildChecksumWithOptions(payload, ["payment_channel", "order_number", "amount", "payer_name", "payer_email"], secretKey, { delimiter: "", algorithm: "sha256", sortFields: false }),
-        },
-        {
-            label: "ordered-pipe :: portal_key,payment_channel,order_number,amount,payer_name,payer_email",
-            checksum: buildChecksumWithOptions(payload, ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email"], secretKey, { delimiter: "|", algorithm: "sha256", sortFields: false }),
-        },
-        {
-            label: "hmac-ordered-pipe :: payment_channel,order_number,amount,payer_name,payer_email",
-            checksum: buildChecksumWithOptions(payload, ["payment_channel", "order_number", "amount", "payer_name", "payer_email"], secretKey, { delimiter: "|", algorithm: "sha256", mode: "hmac", sortFields: false }),
-        },
-        {
-            label: "hmac-ordered-none :: payment_channel,order_number,amount,payer_name,payer_email",
-            checksum: buildChecksumWithOptions(payload, ["payment_channel", "order_number", "amount", "payer_name", "payer_email"], secretKey, { delimiter: "", algorithm: "sha256", mode: "hmac", sortFields: false }),
-        },
-        {
-            label: "hmac-ordered-pipe :: portal_key,payment_channel,order_number,amount,payer_name,payer_email",
-            checksum: buildChecksumWithOptions(payload, ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email"], secretKey, { delimiter: "|", algorithm: "sha256", mode: "hmac", sortFields: false }),
-        },
-    ];
-
-    return attempts;
-}
-
-function isBayarcashChecksumMismatch(parsedBody, rawText = "") {
-    const haystack = [
-        trimValue(parsedBody?.message),
-        trimValue(parsedBody?.error),
-        trimValue(rawText),
-    ].join(" ").toLowerCase();
-
-    return haystack.includes("checksum mismatch");
-}
-
-function getChecksumDebugPayload(payload, attempts, lastStatus) {
-    return {
-        status: lastStatus,
-        payload: {
-            payment_channel: payload.payment_channel,
-            portal_key_present: Boolean(trimValue(payload.portal_key)),
-            order_number: payload.order_number,
-            amount: payload.amount,
-            payer_name: payload.payer_name,
-            payer_email: payload.payer_email,
-            payer_telephone_number: payload.payer_telephone_number,
-            return_url_present: Boolean(trimValue(payload.return_url)),
-            callback_url_present: Boolean(trimValue(payload.callback_url)),
-            metadata_present: Boolean(trimValue(payload.metadata)),
-            platform_id: payload.platform_id,
-        },
-        attempts: attempts.map((attempt) => attempt.label),
-    };
 }
 
 function verifyChecksum(payload, checksum, secretKey) {
@@ -1684,8 +1567,7 @@ async function handleCreatePaymentIntent(request) {
         paymentIntentPayload.callback_url = config.callbackUrl;
     }
 
-    const checksumAttempts = getPaymentIntentChecksumAttempts(paymentIntentPayload, config.apiSecretKey);
-    paymentIntentPayload.checksum = checksumAttempts[0]?.checksum || buildChecksum({
+    paymentIntentPayload.checksum = buildChecksum({
         payment_channel: paymentIntentPayload.payment_channel,
         order_number: paymentIntentPayload.order_number,
         amount: paymentIntentPayload.amount,
@@ -1749,46 +1631,22 @@ async function handleCreatePaymentIntent(request) {
     }
 
     try {
-        let apiResponse = null;
-        let responseBody = "";
-        let parsedBody = {};
+        const apiResponse = await fetch(`${config.apiBaseUrl}/payment-intents`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${config.personalAccessToken}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(paymentIntentPayload),
+        });
 
-        for (let attemptIndex = 0; attemptIndex < checksumAttempts.length; attemptIndex += 1) {
-            const attempt = checksumAttempts[attemptIndex];
-            paymentIntentPayload.checksum = attempt.checksum;
+        const responseBody = await apiResponse.text();
+        const parsedBody = responseBody ? JSON.parse(responseBody) : {};
 
-            apiResponse = await fetch(`${config.apiBaseUrl}/payment-intents`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${config.personalAccessToken}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(paymentIntentPayload),
-            });
-
-            responseBody = await apiResponse.text();
-
-            try {
-                parsedBody = responseBody ? JSON.parse(responseBody) : {};
-            } catch {
-                parsedBody = {};
-            }
-
-            if (apiResponse.ok) {
-                break;
-            }
-
-            if (!isBayarcashChecksumMismatch(parsedBody, responseBody)) {
-                break;
-            }
-        }
-
-        if (!apiResponse?.ok) {
-            const isChecksumMismatch = isBayarcashChecksumMismatch(parsedBody, responseBody);
+        if (!apiResponse.ok) {
             return jsonResponse(502, {
                 error: parsedBody?.message || parsedBody?.error || "BayarCash rejected the payment request.",
-                status: apiResponse?.status || 502,
-                debug: isChecksumMismatch ? getChecksumDebugPayload(paymentIntentPayload, checksumAttempts, apiResponse?.status || 502) : undefined,
+                status: apiResponse.status,
             }, headers);
         }
 
