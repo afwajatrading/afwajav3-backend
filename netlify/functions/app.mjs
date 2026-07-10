@@ -500,15 +500,23 @@ function buildChecksumWithOptions(payload, fields, secretKey, options = {}) {
         sortFields = false,
         secretFirst = false,
         algorithm = "sha256",
+        includeKeys = false,
+        pairSeparator = "=",
+        uppercase = false,
     } = options;
     const normalizedFields = sortFields ? [...fields].sort() : [...fields];
-    const values = normalizedFields.map((key) => trimValue(payload[key]));
+    const values = normalizedFields.map((key) => {
+        const value = trimValue(payload[key]);
+        return includeKeys ? `${key}${pairSeparator}${value}` : value;
+    });
     const chunks = secretFirst ? [trimValue(secretKey), ...values] : [...values, trimValue(secretKey)];
 
-    return crypto
+    const digest = crypto
         .createHash(algorithm)
         .update(chunks.join(delimiter))
         .digest("hex");
+
+    return uppercase ? digest.toUpperCase() : digest;
 }
 
 function getPaymentIntentChecksumAttempts(payload, secretKey) {
@@ -530,10 +538,16 @@ function getPaymentIntentChecksumAttempts(payload, secretKey) {
 
     const styles = [
         { label: "ordered-pipe", delimiter: "|", sortFields: false, secretFirst: false, algorithm: "sha256" },
+        { label: "ordered-pipe-uppercase", delimiter: "|", sortFields: false, secretFirst: false, algorithm: "sha256", uppercase: true },
         { label: "ordered-none", delimiter: "", sortFields: false, secretFirst: false, algorithm: "sha256" },
+        { label: "ordered-none-uppercase", delimiter: "", sortFields: false, secretFirst: false, algorithm: "sha256", uppercase: true },
         { label: "ordered-pipe-secret-first", delimiter: "|", sortFields: false, secretFirst: true, algorithm: "sha256" },
+        { label: "ordered-pipe-secret-first-uppercase", delimiter: "|", sortFields: false, secretFirst: true, algorithm: "sha256", uppercase: true },
         { label: "ordered-none-secret-first", delimiter: "", sortFields: false, secretFirst: true, algorithm: "sha256" },
         { label: "ordered-none-md5", delimiter: "", sortFields: false, secretFirst: false, algorithm: "md5" },
+        { label: "ordered-amp-keyvalue", delimiter: "&", sortFields: false, secretFirst: false, algorithm: "sha256", includeKeys: true },
+        { label: "ordered-pipe-keyvalue", delimiter: "|", sortFields: false, secretFirst: false, algorithm: "sha256", includeKeys: true },
+        { label: "ordered-amp-keyvalue-uppercase", delimiter: "&", sortFields: false, secretFirst: false, algorithm: "sha256", includeKeys: true, uppercase: true },
     ];
 
     return styles.flatMap((style) => fieldSets.map((fields) => ({
@@ -550,6 +564,26 @@ function isBayarcashChecksumMismatch(parsedBody, rawText = "") {
     ].join(" ").toLowerCase();
 
     return haystack.includes("checksum mismatch");
+}
+
+function getChecksumDebugPayload(payload, attempts, lastStatus) {
+    return {
+        status: lastStatus,
+        payload: {
+            payment_channel: payload.payment_channel,
+            portal_key_present: Boolean(trimValue(payload.portal_key)),
+            order_number: payload.order_number,
+            amount: payload.amount,
+            payer_name: payload.payer_name,
+            payer_email: payload.payer_email,
+            payer_telephone_number: payload.payer_telephone_number,
+            return_url_present: Boolean(trimValue(payload.return_url)),
+            callback_url_present: Boolean(trimValue(payload.callback_url)),
+            metadata_present: Boolean(trimValue(payload.metadata)),
+            platform_id: payload.platform_id,
+        },
+        attempts: attempts.map((attempt) => attempt.label),
+    };
 }
 
 function verifyChecksum(payload, checksum, secretKey) {
@@ -1725,9 +1759,11 @@ async function handleCreatePaymentIntent(request) {
         }
 
         if (!apiResponse?.ok) {
+            const isChecksumMismatch = isBayarcashChecksumMismatch(parsedBody, responseBody);
             return jsonResponse(502, {
                 error: parsedBody?.message || parsedBody?.error || "BayarCash rejected the payment request.",
                 status: apiResponse?.status || 502,
+                debug: isChecksumMismatch ? getChecksumDebugPayload(paymentIntentPayload, checksumAttempts, apiResponse?.status || 502) : undefined,
             }, headers);
         }
 
