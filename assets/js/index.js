@@ -1541,6 +1541,24 @@
         writePendingBookingStore(store);
     }
 
+    async function finalizeBookingNotifications(orderNumber, transactionId, bookingSnapshot) {
+        if (!orderNumber || !transactionId || !bookingSnapshot) {
+            return;
+        }
+
+        await fetch(buildApiUrl("/api/bayarcash/finalize-booking"), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                orderNumber,
+                transactionId,
+                bookingSnapshot,
+            }),
+        }).catch(() => null);
+    }
+
     async function goToPayment() {
         if (!selectedCar || !bookingForm) {
             setBookingError(t("booking_error_missing_car"));
@@ -1906,10 +1924,12 @@
 
         const verifyParams = new URLSearchParams(url.searchParams);
         const orderNumber = verifyParams.get("order_number") || "";
+        let bookingSnapshotValue = verifyParams.get("booking_snapshot") || "";
         if (!verifyParams.has("booking_snapshot")) {
             const pendingSnapshot = getPendingBookingSnapshot(orderNumber);
             if (pendingSnapshot) {
                 verifyParams.set("booking_snapshot", pendingSnapshot);
+                bookingSnapshotValue = pendingSnapshot;
             }
         }
 
@@ -1917,6 +1937,14 @@
             const response = await fetch(buildApiUrl(`/api/bayarcash/verify-return?${verifyParams.toString()}`));
             const result = await response.json();
             const state = mapPaymentState(result.status);
+
+            if (result.verified !== false) {
+                await finalizeBookingNotifications(
+                    result.orderNumber || orderNumber,
+                    result.transactionId || verifyParams.get("transaction_id") || "",
+                    bookingSnapshotValue
+                );
+            }
 
             showPaymentStatus(state, result);
             removePendingBookingSnapshot(orderNumber);

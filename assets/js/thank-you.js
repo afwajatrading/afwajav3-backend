@@ -172,6 +172,24 @@
         window.localStorage.setItem(PENDING_BOOKING_STORAGE_KEY, JSON.stringify(store));
     }
 
+    async function finalizeBookingNotifications(orderNumberValue, transactionIdValue, bookingSnapshotValue) {
+        if (!orderNumberValue || !transactionIdValue || !bookingSnapshotValue) {
+            return;
+        }
+
+        await fetch(buildApiUrl("/api/bayarcash/finalize-booking"), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                orderNumber: orderNumberValue,
+                transactionId: transactionIdValue,
+                bookingSnapshot: bookingSnapshotValue,
+            }),
+        }).catch(() => null);
+    }
+
     function mapPaymentState(statusValue) {
         const normalized = `${statusValue ?? ""}`.toLowerCase();
 
@@ -254,10 +272,12 @@
 
         const verifyParams = new URLSearchParams(url.searchParams);
         const orderNumberValue = verifyParams.get("order_number") || "";
+        let bookingSnapshotValue = verifyParams.get("booking_snapshot") || "";
         if (!verifyParams.has("booking_snapshot")) {
             const pendingSnapshot = getPendingBookingSnapshot(orderNumberValue);
             if (pendingSnapshot) {
                 verifyParams.set("booking_snapshot", pendingSnapshot);
+                bookingSnapshotValue = pendingSnapshot;
             }
         }
 
@@ -265,6 +285,14 @@
             const response = await fetch(buildApiUrl(`/api/bayarcash/verify-return?${verifyParams.toString()}`));
             const result = await response.json();
             const state = mapPaymentState(result.status);
+
+            if (result.verified !== false) {
+                await finalizeBookingNotifications(
+                    result.orderNumber || orderNumberValue,
+                    result.transactionId || verifyParams.get("transaction_id") || "",
+                    bookingSnapshotValue
+                );
+            }
 
             renderStatus(state, result);
             removePendingBookingSnapshot(orderNumberValue);
