@@ -162,7 +162,7 @@ function parseNumberEnv(value, defaultValue) {
 
 function getTestCheckoutConfig() {
     return {
-        enabled: parseBooleanEnv(process.env.TEST_CHECKOUT_ENABLED, true),
+        enabled: parseBooleanEnv(process.env.TEST_CHECKOUT_ENABLED, false),
         carName: `${process.env.TEST_CHECKOUT_CAR_NAME || ""}`.trim() || "Perodua Axia",
         total: parseNumberEnv(process.env.TEST_CHECKOUT_TOTAL, 1),
     };
