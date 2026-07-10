@@ -1,6 +1,6 @@
 window.AfwajaRuntimeConfig = {
     testCheckout: {
-        enabled: true,
+        enabled: false,
         carName: "Perodua Axia",
         total: 1,
     },
