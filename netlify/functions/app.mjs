@@ -530,46 +530,43 @@ function buildChecksumWithOptions(payload, fields, secretKey, options = {}) {
 }
 
 function getPaymentIntentChecksumAttempts(payload, secretKey) {
-    const fieldSets = [
-        ["payment_channel", "order_number", "amount", "payer_name", "payer_email"],
-        ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email"],
-        ["payment_channel", "order_number", "amount", "payer_name", "payer_email", "payer_telephone_number"],
-        ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email", "return_url"],
-        ["payment_channel", "order_number", "amount", "payer_name", "payer_email", "payer_telephone_number", "return_url"],
-        ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email", "payer_telephone_number", "return_url"],
+    const attempts = [
+        {
+            label: "ordered-pipe :: payment_channel,order_number,amount,payer_name,payer_email",
+            fields: ["payment_channel", "order_number", "amount", "payer_name", "payer_email"],
+            style: { delimiter: "|", algorithm: "sha256" },
+        },
+        {
+            label: "ordered-none :: payment_channel,order_number,amount,payer_name,payer_email",
+            fields: ["payment_channel", "order_number", "amount", "payer_name", "payer_email"],
+            style: { delimiter: "", algorithm: "sha256" },
+        },
+        {
+            label: "ordered-pipe :: portal_key,payment_channel,order_number,amount,payer_name,payer_email",
+            fields: ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email"],
+            style: { delimiter: "|", algorithm: "sha256" },
+        },
+        {
+            label: "hmac-ordered-pipe :: payment_channel,order_number,amount,payer_name,payer_email",
+            fields: ["payment_channel", "order_number", "amount", "payer_name", "payer_email"],
+            style: { delimiter: "|", algorithm: "sha256", mode: "hmac" },
+        },
+        {
+            label: "hmac-ordered-none :: payment_channel,order_number,amount,payer_name,payer_email",
+            fields: ["payment_channel", "order_number", "amount", "payer_name", "payer_email"],
+            style: { delimiter: "", algorithm: "sha256", mode: "hmac" },
+        },
+        {
+            label: "hmac-ordered-pipe :: portal_key,payment_channel,order_number,amount,payer_name,payer_email",
+            fields: ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email"],
+            style: { delimiter: "|", algorithm: "sha256", mode: "hmac" },
+        },
     ];
 
-    if (payload.callback_url) {
-        fieldSets.push(
-            ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email", "callback_url"],
-            ["portal_key", "payment_channel", "order_number", "amount", "payer_name", "payer_email", "return_url", "callback_url"],
-        );
-    }
-
-    const styles = [
-        { label: "ordered-pipe", delimiter: "|", sortFields: false, secretFirst: false, algorithm: "sha256" },
-        { label: "ordered-pipe-uppercase", delimiter: "|", sortFields: false, secretFirst: false, algorithm: "sha256", uppercase: true },
-        { label: "ordered-none", delimiter: "", sortFields: false, secretFirst: false, algorithm: "sha256" },
-        { label: "ordered-none-uppercase", delimiter: "", sortFields: false, secretFirst: false, algorithm: "sha256", uppercase: true },
-        { label: "ordered-pipe-secret-first", delimiter: "|", sortFields: false, secretFirst: true, algorithm: "sha256" },
-        { label: "ordered-pipe-secret-first-uppercase", delimiter: "|", sortFields: false, secretFirst: true, algorithm: "sha256", uppercase: true },
-        { label: "ordered-none-secret-first", delimiter: "", sortFields: false, secretFirst: true, algorithm: "sha256" },
-        { label: "ordered-none-md5", delimiter: "", sortFields: false, secretFirst: false, algorithm: "md5" },
-        { label: "ordered-amp-keyvalue", delimiter: "&", sortFields: false, secretFirst: false, algorithm: "sha256", includeKeys: true },
-        { label: "ordered-pipe-keyvalue", delimiter: "|", sortFields: false, secretFirst: false, algorithm: "sha256", includeKeys: true },
-        { label: "ordered-amp-keyvalue-uppercase", delimiter: "&", sortFields: false, secretFirst: false, algorithm: "sha256", includeKeys: true, uppercase: true },
-        { label: "hmac-ordered-pipe", delimiter: "|", sortFields: false, algorithm: "sha256", mode: "hmac" },
-        { label: "hmac-ordered-none", delimiter: "", sortFields: false, algorithm: "sha256", mode: "hmac" },
-        { label: "hmac-ordered-pipe-uppercase", delimiter: "|", sortFields: false, algorithm: "sha256", mode: "hmac", uppercase: true },
-        { label: "hmac-ordered-none-uppercase", delimiter: "", sortFields: false, algorithm: "sha256", mode: "hmac", uppercase: true },
-        { label: "hmac-ordered-amp-keyvalue", delimiter: "&", sortFields: false, algorithm: "sha256", includeKeys: true, mode: "hmac" },
-        { label: "hmac-ordered-pipe-keyvalue", delimiter: "|", sortFields: false, algorithm: "sha256", includeKeys: true, mode: "hmac" },
-    ];
-
-    return styles.flatMap((style) => fieldSets.map((fields) => ({
-        label: `${style.label} :: ${fields.join(",")}`,
-        checksum: buildChecksumWithOptions(payload, fields, secretKey, style),
-    })));
+    return attempts.map((attempt) => ({
+        label: attempt.label,
+        checksum: buildChecksumWithOptions(payload, attempt.fields, secretKey, attempt.style),
+    }));
 }
 
 function isBayarcashChecksumMismatch(parsedBody, rawText = "") {
