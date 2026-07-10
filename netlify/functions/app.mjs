@@ -1989,6 +1989,7 @@ async function handleCallback(request) {
 
 async function handleFinalizeBooking(request) {
     const headers = buildCorsHeaders(request);
+    const config = getBayarcashConfig();
     let body;
 
     try {
@@ -2000,30 +2001,40 @@ async function handleFinalizeBooking(request) {
     const orderNumber = trimValue(body.orderNumber);
     const transactionId = trimValue(body.transactionId);
     const bookingSnapshot = decodeBookingSnapshot(body.bookingSnapshot);
+    const transactionData = transactionId
+        ? await fetchBayarcashTransaction(transactionId, config)
+        : null;
 
     if (!orderNumber || !transactionId) {
         return jsonResponse(400, { error: "Order number and transaction ID are required." }, headers);
     }
 
+    if (!transactionData) {
+        return jsonResponse(409, { error: "Transaction could not be verified with BayarCash." }, headers);
+    }
+
+    if (trimValue(transactionData.order_number) !== orderNumber) {
+        return jsonResponse(409, { error: "Transaction does not match the booking order number." }, headers);
+    }
+
     const existingRecord = await readPaymentRecord(orderNumber);
-
-    if (!existingRecord || existingRecord.verified === false) {
-        return jsonResponse(409, { error: "Booking record is not verified yet." }, headers);
-    }
-
-    if (trimValue(existingRecord.transactionId) && trimValue(existingRecord.transactionId) !== transactionId) {
-        return jsonResponse(409, { error: "Transaction ID does not match the verified booking record." }, headers);
-    }
-
-    const mergedRecord = enrichRecordFromSnapshot({
-        ...existingRecord,
-    }, bookingSnapshot);
+    const mergedRecord = enrichRecordFromTransaction(enrichRecordFromSnapshot({
+        ...(existingRecord || {}),
+        orderNumber,
+        transactionId,
+        verified: true,
+        state: getPaymentState(transactionData.status),
+        status: transactionData.status || (existingRecord?.status || ""),
+        statusDescription: transactionData.status_description || (existingRecord?.statusDescription || ""),
+        amount: transactionData.amount || (existingRecord?.amount || ""),
+    }, bookingSnapshot), transactionData);
     const finalRecord = await maybeSendPaymentNotifications(mergedRecord);
     await savePaymentRecord(finalRecord);
 
     return jsonResponse(200, {
         ok: true,
         orderNumber: finalRecord.orderNumber || orderNumber,
+        state: finalRecord.state || "",
         notificationEmailState: finalRecord.notificationEmailState || "",
         customerNotificationEmailSent: finalRecord.customerNotificationEmailSent === true,
         adminNotificationEmailSent: finalRecord.adminNotificationEmailSent === true,
