@@ -1446,6 +1446,22 @@
         bookingFormError.classList.remove("hidden");
     }
 
+    function buildBayarcashDebugMessage(result = {}, fallbackMessage = "") {
+        const baseMessage = result.error || fallbackMessage;
+        const debug = result.debug;
+
+        if (!debug) {
+            return baseMessage;
+        }
+
+        const attemptedChecksums = Array.isArray(debug.attempts) ? debug.attempts.slice(0, 6).join(" | ") : "";
+        const statusLabel = debug.status ? `Status: ${debug.status}. ` : "";
+        const attemptsLabel = attemptedChecksums ? `Checksum tried: ${attemptedChecksums}` : "";
+        const separator = baseMessage && (statusLabel || attemptsLabel) ? " " : "";
+
+        return `${baseMessage}${separator}${statusLabel}${attemptsLabel}`.trim();
+    }
+
     function clearBookingError() {
         if (!bookingFormError) {
             return;
@@ -1538,7 +1554,7 @@
 
             if (!response.ok) {
                 const fallbackMessage = response.status === 503 ? t("booking_error_config") : t("booking_error_generic");
-                setBookingError(result.error || fallbackMessage);
+                setBookingError(buildBayarcashDebugMessage(result, fallbackMessage));
                 return;
             }
 
