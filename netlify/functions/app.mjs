@@ -66,7 +66,9 @@ export const config = {
 function createPaymentStore() {
     const hasNetlifyBlobsEnv = Boolean(
         trimValue(process.env.NETLIFY_BLOBS_CONTEXT) ||
-        (trimValue(process.env.SITE_ID) && trimValue(process.env.NETLIFY_AUTH_TOKEN))
+        trimValue(process.env.NETLIFY) ||
+        trimValue(process.env.CONTEXT) ||
+        trimValue(process.env.SITE_ID)
     );
 
     if (hasNetlifyBlobsEnv) {
@@ -1062,6 +1064,45 @@ async function maybeSendPaymentNotifications(record) {
     }
 }
 
+function normalizeBayarcashTransactionData(payload) {
+    if (!payload || typeof payload !== "object") {
+        return null;
+    }
+
+    const directCandidate = payload.data?.attributes
+        ? { id: payload.data.id, ...payload.data.attributes }
+        : payload.data || payload.transaction || payload.result || payload;
+
+    if (!directCandidate || typeof directCandidate !== "object") {
+        return null;
+    }
+
+    const metadata =
+        directCandidate.metadata ??
+        directCandidate.meta ??
+        directCandidate.payment_intent?.metadata ??
+        directCandidate.paymentIntent?.metadata ??
+        payload.metadata ??
+        payload.meta ??
+        {};
+
+    return {
+        ...directCandidate,
+        id: directCandidate.id || payload.id || payload.data?.id || "",
+        order_number: directCandidate.order_number || directCandidate.orderNumber || "",
+        exchange_reference_number: directCandidate.exchange_reference_number || directCandidate.exchangeReferenceNumber || "",
+        exchange_transaction_id: directCandidate.exchange_transaction_id || directCandidate.exchangeTransactionId || "",
+        payer_bank_name: directCandidate.payer_bank_name || directCandidate.payerBankName || "",
+        payer_name: directCandidate.payer_name || directCandidate.payerName || "",
+        payer_email: directCandidate.payer_email || directCandidate.payerEmail || "",
+        payer_telephone_number: directCandidate.payer_telephone_number || directCandidate.payerTelephoneNumber || "",
+        status: directCandidate.status || "",
+        status_description: directCandidate.status_description || directCandidate.statusDescription || "",
+        amount: directCandidate.amount || "",
+        metadata,
+    };
+}
+
 async function fetchBayarcashTransaction(transactionId, config) {
     if (!transactionId || !config.personalAccessToken) {
         return null;
@@ -1079,7 +1120,8 @@ async function fetchBayarcashTransaction(transactionId, config) {
         return null;
     }
 
-    return response.json().catch(() => null);
+    const payload = await response.json().catch(() => null);
+    return normalizeBayarcashTransactionData(payload);
 }
 
 function verifyReturnAgainstTransaction(payload, transactionData) {
