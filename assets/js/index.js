@@ -5,6 +5,7 @@
     const runtimeConfig = window.AfwajaRuntimeConfig || {};
     const WHATSFORM_URL = "https://whatsform.com/dt7Aom";
     const PAYMENT_RETURN_FLAG = "payment_return";
+    const PENDING_BOOKING_STORAGE_KEY = "afwaja_pending_bookings";
     const STATUS_CONFIG = {
         success: {
             tone: "border-emerald-200 bg-emerald-50/95",
@@ -1467,6 +1468,79 @@
         }
     }
 
+    function encodeBookingSnapshot(snapshot) {
+        try {
+            const json = JSON.stringify(snapshot || {});
+            const bytes = new TextEncoder().encode(json);
+            let binary = "";
+            bytes.forEach((byte) => {
+                binary += String.fromCharCode(byte);
+            });
+            return window.btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+        } catch {
+            return "";
+        }
+    }
+
+    function readPendingBookingStore() {
+        try {
+            const rawValue = window.localStorage.getItem(PENDING_BOOKING_STORAGE_KEY);
+            if (!rawValue) {
+                return {};
+            }
+
+            const parsedValue = JSON.parse(rawValue);
+            return parsedValue && typeof parsedValue === "object" ? parsedValue : {};
+        } catch {
+            return {};
+        }
+    }
+
+    function writePendingBookingStore(store) {
+        try {
+            window.localStorage.setItem(PENDING_BOOKING_STORAGE_KEY, JSON.stringify(store || {}));
+        } catch {
+            // Ignore storage write failures so checkout can continue.
+        }
+    }
+
+    function savePendingBookingSnapshot(snapshot) {
+        if (!snapshot?.orderNumber) {
+            return;
+        }
+
+        const store = readPendingBookingStore();
+        store[snapshot.orderNumber] = {
+            ...snapshot,
+            savedAt: new Date().toISOString(),
+        };
+        writePendingBookingStore(store);
+    }
+
+    function getPendingBookingSnapshot(orderNumber) {
+        if (!orderNumber) {
+            return "";
+        }
+
+        const store = readPendingBookingStore();
+        const snapshot = store[orderNumber];
+        return snapshot ? encodeBookingSnapshot(snapshot) : "";
+    }
+
+    function removePendingBookingSnapshot(orderNumber) {
+        if (!orderNumber) {
+            return;
+        }
+
+        const store = readPendingBookingStore();
+        if (!store[orderNumber]) {
+            return;
+        }
+
+        delete store[orderNumber];
+        writePendingBookingStore(store);
+    }
+
     async function goToPayment() {
         if (!selectedCar || !bookingForm) {
             setBookingError(t("booking_error_missing_car"));
@@ -1522,6 +1596,13 @@
             bankAccountNumber: bookingBankAccountNumber?.value.trim() || "",
             termsAgreement: Boolean(bookingTermsAgreement?.checked),
         };
+        const rentalPricing = calculateRentalPricing(
+            payload.pickupDate,
+            payload.returnDate,
+            payload.pickupTime,
+            payload.returnTime,
+            selectedCar.price
+        );
 
         setBookingLoading(true);
 
@@ -1546,6 +1627,30 @@
                 setBookingError(t("booking_error_generic"));
                 return;
             }
+
+            savePendingBookingSnapshot({
+                orderNumber: result.orderNumber || "",
+                carName: selectedCar.name,
+                customerName: payload.customerName,
+                customerEmail: payload.customerEmail,
+                customerPhone: payload.customerPhone,
+                amount: result.amount || bookingSummary.total?.textContent || "",
+                rentalDays: scheduleValidation.rentalDays,
+                pickupDate: payload.pickupDate,
+                pickupTime: payload.pickupTime,
+                pickupLocation: payload.pickupLocation,
+                returnDate: payload.returnDate,
+                returnTime: payload.returnTime,
+                returnLocation: payload.returnLocation,
+                rateLabel: rentalPricing?.rateLabel || t("rate_standard"),
+                rentalCharges: rentalPricing?.rentalCharge ?? "",
+                deliveryCharge: deliveryQuote.pickupCharge,
+                returnPickupCharge: deliveryQuote.collectionCharge,
+                refundableDeposit: selectedCar.deposit,
+                refundBankName: payload.bankName,
+                refundAccountName: payload.bankAccountName,
+                refundAccountNumber: payload.bankAccountNumber,
+            });
 
             window.location.assign(result.checkoutUrl);
         } catch (error) {
@@ -1799,12 +1904,22 @@
             return;
         }
 
+        const verifyParams = new URLSearchParams(url.searchParams);
+        const orderNumber = verifyParams.get("order_number") || "";
+        if (!verifyParams.has("booking_snapshot")) {
+            const pendingSnapshot = getPendingBookingSnapshot(orderNumber);
+            if (pendingSnapshot) {
+                verifyParams.set("booking_snapshot", pendingSnapshot);
+            }
+        }
+
         try {
-            const response = await fetch(buildApiUrl(`/api/bayarcash/verify-return?${url.searchParams.toString()}`));
+            const response = await fetch(buildApiUrl(`/api/bayarcash/verify-return?${verifyParams.toString()}`));
             const result = await response.json();
             const state = mapPaymentState(result.status);
 
             showPaymentStatus(state, result);
+            removePendingBookingSnapshot(orderNumber);
         } catch (error) {
             showPaymentStatus("unknown", { verified: false });
         } finally {

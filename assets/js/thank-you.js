@@ -1,6 +1,7 @@
 (function () {
     const { createLanguageController, setCurrentYear } = window.AfwajaSite;
     const siteConfig = window.AfwajaSiteConfig || {};
+    const PENDING_BOOKING_STORAGE_KEY = "afwaja_pending_bookings";
     const STATUS_CONFIG = {
         success: {
             cardTone: "border-emerald-200 bg-emerald-50/95",
@@ -119,6 +120,58 @@
         return apiBaseUrl ? `${apiBaseUrl}${normalizedPath}` : normalizedPath;
     }
 
+    function readPendingBookingStore() {
+        try {
+            const rawValue = window.localStorage.getItem(PENDING_BOOKING_STORAGE_KEY);
+            if (!rawValue) {
+                return {};
+            }
+
+            const parsedValue = JSON.parse(rawValue);
+            return parsedValue && typeof parsedValue === "object" ? parsedValue : {};
+        } catch {
+            return {};
+        }
+    }
+
+    function encodeBookingSnapshot(snapshot) {
+        try {
+            const json = JSON.stringify(snapshot || {});
+            const bytes = new TextEncoder().encode(json);
+            let binary = "";
+            bytes.forEach((byte) => {
+                binary += String.fromCharCode(byte);
+            });
+            return window.btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+        } catch {
+            return "";
+        }
+    }
+
+    function getPendingBookingSnapshot(orderNumber) {
+        if (!orderNumber) {
+            return "";
+        }
+
+        const store = readPendingBookingStore();
+        const snapshot = store[orderNumber];
+        return snapshot ? encodeBookingSnapshot(snapshot) : "";
+    }
+
+    function removePendingBookingSnapshot(orderNumber) {
+        if (!orderNumber) {
+            return;
+        }
+
+        const store = readPendingBookingStore();
+        if (!store[orderNumber]) {
+            return;
+        }
+
+        delete store[orderNumber];
+        window.localStorage.setItem(PENDING_BOOKING_STORAGE_KEY, JSON.stringify(store));
+    }
+
     function mapPaymentState(statusValue) {
         const normalized = `${statusValue ?? ""}`.toLowerCase();
 
@@ -199,12 +252,22 @@
             return;
         }
 
+        const verifyParams = new URLSearchParams(url.searchParams);
+        const orderNumberValue = verifyParams.get("order_number") || "";
+        if (!verifyParams.has("booking_snapshot")) {
+            const pendingSnapshot = getPendingBookingSnapshot(orderNumberValue);
+            if (pendingSnapshot) {
+                verifyParams.set("booking_snapshot", pendingSnapshot);
+            }
+        }
+
         try {
-            const response = await fetch(buildApiUrl(`/api/bayarcash/verify-return?${url.searchParams.toString()}`));
+            const response = await fetch(buildApiUrl(`/api/bayarcash/verify-return?${verifyParams.toString()}`));
             const result = await response.json();
             const state = mapPaymentState(result.status);
 
             renderStatus(state, result);
+            removePendingBookingSnapshot(orderNumberValue);
         } catch (error) {
             renderStatus("unknown", { verified: false });
         } finally {
