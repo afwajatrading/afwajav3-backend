@@ -1454,9 +1454,13 @@
             return baseMessage;
         }
 
-        const attemptedChecksums = Array.isArray(debug.attempts) ? debug.attempts.slice(0, 6).join(" | ") : "";
+        const attemptList = Array.isArray(debug.attempts) ? debug.attempts : [];
+        const previewAttempts = attemptList.slice(0, 12);
+        const hasMoreAttempts = attemptList.length > previewAttempts.length;
+        const attemptedChecksums = previewAttempts.join(" | ");
         const statusLabel = debug.status ? `Status: ${debug.status}. ` : "";
-        const attemptsLabel = attemptedChecksums ? `Checksum tried: ${attemptedChecksums}` : "";
+        const attemptsSuffix = hasMoreAttempts ? ` | +${attemptList.length - previewAttempts.length} more` : "";
+        const attemptsLabel = attemptedChecksums ? `Checksum tried: ${attemptedChecksums}${attemptsSuffix}` : "";
         const separator = baseMessage && (statusLabel || attemptsLabel) ? " " : "";
 
         return `${baseMessage}${separator}${statusLabel}${attemptsLabel}`.trim();
