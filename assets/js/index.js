@@ -1466,6 +1466,17 @@
         return `${baseMessage}${separator}${statusLabel}${attemptsLabel}`.trim();
     }
 
+    function buildHttpErrorMessage(response, rawText, fallbackMessage = "") {
+        const statusPart = response?.status ? `HTTP ${response.status}` : "";
+        const textPart = `${rawText || ""}`
+            .replace(/\s+/g, " ")
+            .replace(/<[^>]+>/g, " ")
+            .trim()
+            .slice(0, 220);
+
+        return [fallbackMessage, statusPart, textPart].filter(Boolean).join(". ");
+    }
+
     function clearBookingError() {
         if (!bookingFormError) {
             return;
@@ -1554,11 +1565,22 @@
                 body: JSON.stringify(payload),
             });
 
-            const result = await response.json().catch(() => ({}));
+            const rawText = await response.text();
+            const result = (() => {
+                try {
+                    return rawText ? JSON.parse(rawText) : {};
+                } catch {
+                    return {};
+                }
+            })();
 
             if (!response.ok) {
                 const fallbackMessage = response.status === 503 ? t("booking_error_config") : t("booking_error_generic");
-                setBookingError(buildBayarcashDebugMessage(result, fallbackMessage));
+                const debugMessage = buildBayarcashDebugMessage(result, fallbackMessage);
+                const detailedMessage = rawText && !Object.keys(result).length
+                    ? buildHttpErrorMessage(response, rawText, fallbackMessage)
+                    : debugMessage;
+                setBookingError(detailedMessage);
                 return;
             }
 
