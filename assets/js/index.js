@@ -1824,6 +1824,7 @@
                 "status",
                 "status_description",
                 "datetime",
+                "booking_snapshot",
                 "checksum",
             ].forEach((key) => cleanUrl.searchParams.delete(key));
             window.history.replaceState({}, document.title, `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
