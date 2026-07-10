@@ -503,18 +503,28 @@ function buildChecksumWithOptions(payload, fields, secretKey, options = {}) {
         includeKeys = false,
         pairSeparator = "=",
         uppercase = false,
+        mode = "hash",
     } = options;
     const normalizedFields = sortFields ? [...fields].sort() : [...fields];
     const values = normalizedFields.map((key) => {
         const value = trimValue(payload[key]);
         return includeKeys ? `${key}${pairSeparator}${value}` : value;
     });
-    const chunks = secretFirst ? [trimValue(secretKey), ...values] : [...values, trimValue(secretKey)];
+    const message = values.join(delimiter);
+    let digest = "";
 
-    const digest = crypto
-        .createHash(algorithm)
-        .update(chunks.join(delimiter))
-        .digest("hex");
+    if (mode === "hmac") {
+        digest = crypto
+            .createHmac(algorithm, trimValue(secretKey))
+            .update(message)
+            .digest("hex");
+    } else {
+        const chunks = secretFirst ? [trimValue(secretKey), ...values] : [...values, trimValue(secretKey)];
+        digest = crypto
+            .createHash(algorithm)
+            .update(chunks.join(delimiter))
+            .digest("hex");
+    }
 
     return uppercase ? digest.toUpperCase() : digest;
 }
@@ -548,6 +558,12 @@ function getPaymentIntentChecksumAttempts(payload, secretKey) {
         { label: "ordered-amp-keyvalue", delimiter: "&", sortFields: false, secretFirst: false, algorithm: "sha256", includeKeys: true },
         { label: "ordered-pipe-keyvalue", delimiter: "|", sortFields: false, secretFirst: false, algorithm: "sha256", includeKeys: true },
         { label: "ordered-amp-keyvalue-uppercase", delimiter: "&", sortFields: false, secretFirst: false, algorithm: "sha256", includeKeys: true, uppercase: true },
+        { label: "hmac-ordered-pipe", delimiter: "|", sortFields: false, algorithm: "sha256", mode: "hmac" },
+        { label: "hmac-ordered-none", delimiter: "", sortFields: false, algorithm: "sha256", mode: "hmac" },
+        { label: "hmac-ordered-pipe-uppercase", delimiter: "|", sortFields: false, algorithm: "sha256", mode: "hmac", uppercase: true },
+        { label: "hmac-ordered-none-uppercase", delimiter: "", sortFields: false, algorithm: "sha256", mode: "hmac", uppercase: true },
+        { label: "hmac-ordered-amp-keyvalue", delimiter: "&", sortFields: false, algorithm: "sha256", includeKeys: true, mode: "hmac" },
+        { label: "hmac-ordered-pipe-keyvalue", delimiter: "|", sortFields: false, algorithm: "sha256", includeKeys: true, mode: "hmac" },
     ];
 
     return styles.flatMap((style) => fieldSets.map((fields) => ({
