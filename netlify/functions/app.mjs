@@ -1031,10 +1031,22 @@ async function maybeSendPaymentNotifications(record) {
             ? createAdminEmail(enrichedRecord)
             : createAdminUnsuccessfulEmail(enrichedRecord);
 
-        await Promise.all([
-            sendEmail(customerEmail, emailConfig),
-            sendEmail(adminEmail, emailConfig),
-        ]);
+        const emailTasks = [];
+
+        if (trimValue(customerEmail.to)) {
+            emailTasks.push(sendEmail(customerEmail, emailConfig));
+        }
+
+        if (trimValue(adminEmail.to)) {
+            emailTasks.push(sendEmail(adminEmail, emailConfig));
+        }
+
+        const emailResults = await Promise.allSettled(emailTasks);
+        const failedEmail = emailResults.find((result) => result.status === "rejected");
+
+        if (failedEmail) {
+            throw failedEmail.reason;
+        }
 
         const updatedRecord = {
             ...record,
@@ -1283,6 +1295,64 @@ function getReturnChecksumPayload(payload) {
         payer_bank_name: payload.payer_bank_name,
         status: payload.status,
         status_description: payload.status_description,
+    };
+}
+
+function parseMetadataObject(value) {
+    if (!value) {
+        return {};
+    }
+
+    if (typeof value === "object") {
+        return value;
+    }
+
+    if (typeof value === "string") {
+        try {
+            const parsed = JSON.parse(value);
+            return parsed && typeof parsed === "object" ? parsed : {};
+        } catch {
+            return {};
+        }
+    }
+
+    return {};
+}
+
+function enrichRecordFromTransaction(existingRecord = {}, transactionData = null) {
+    if (!transactionData) {
+        return existingRecord;
+    }
+
+    const metadata = parseMetadataObject(transactionData.metadata);
+
+    return {
+        ...existingRecord,
+        orderNumber: existingRecord.orderNumber || transactionData.order_number || "",
+        transactionId: existingRecord.transactionId || transactionData.id || "",
+        status: existingRecord.status || transactionData.status || "",
+        statusDescription: existingRecord.statusDescription || transactionData.status_description || "",
+        amount: existingRecord.amount || transactionData.amount || "",
+        customerName: existingRecord.customerName || transactionData.payer_name || "",
+        customerEmail: existingRecord.customerEmail || transactionData.payer_email || "",
+        customerPhone: existingRecord.customerPhone || normalizePhoneNumber(transactionData.payer_telephone_number || ""),
+        payerBankName: existingRecord.payerBankName || transactionData.payer_bank_name || "",
+        carName: existingRecord.carName || metadata.car_name || "",
+        rentalDays: existingRecord.rentalDays || metadata.rental_days || "",
+        pickupDate: existingRecord.pickupDate || metadata.pickup_date || "",
+        pickupTime: existingRecord.pickupTime || metadata.pickup_time || "",
+        pickupLocation: existingRecord.pickupLocation || metadata.pickup_location || "",
+        returnDate: existingRecord.returnDate || metadata.return_date || "",
+        returnTime: existingRecord.returnTime || metadata.return_time || "",
+        returnLocation: existingRecord.returnLocation || metadata.return_location || "",
+        rateLabel: existingRecord.rateLabel || metadata.rate_label || "",
+        rentalCharges: existingRecord.rentalCharges || metadata.rental_charges || "",
+        deliveryCharge: existingRecord.deliveryCharge || metadata.delivery_charge || "",
+        returnPickupCharge: existingRecord.returnPickupCharge || metadata.return_pickup_charge || "",
+        refundableDeposit: existingRecord.refundableDeposit || metadata.refundable_deposit || "",
+        refundBankName: existingRecord.refundBankName || metadata.refund_bank_name || "",
+        refundAccountName: existingRecord.refundAccountName || metadata.refund_account_name || "",
+        refundAccountNumber: existingRecord.refundAccountNumber || metadata.refund_account_number || "",
     };
 }
 
@@ -1683,10 +1753,12 @@ async function handleVerifyReturn(request) {
     const url = new URL(request.url);
     const payload = Object.fromEntries(url.searchParams.entries());
     const checksumPayload = getReturnChecksumPayload(payload);
+    const transactionData = payload.transaction_id
+        ? await fetchBayarcashTransaction(payload.transaction_id, config)
+        : null;
     let verified = verifyChecksum(checksumPayload, payload.checksum, config.apiSecretKey);
 
-    if (!verified && payload.transaction_id) {
-        const transactionData = await fetchBayarcashTransaction(payload.transaction_id, config);
+    if (!verified && transactionData) {
         verified = verifyReturnAgainstTransaction(payload, transactionData);
     }
 
@@ -1694,10 +1766,10 @@ async function handleVerifyReturn(request) {
     const normalizedPayload = normalizeReturnPayload(payload, verified, existingRecord || {});
 
     if (normalizedPayload.orderNumber) {
-        const mergedRecord = {
+        const mergedRecord = enrichRecordFromTransaction({
             ...(existingRecord || {}),
             ...normalizedPayload,
-        };
+        }, transactionData);
         const finalRecord = await maybeSendPaymentNotifications(mergedRecord);
         await savePaymentRecord(finalRecord);
     }
@@ -1717,10 +1789,12 @@ async function handleCallback(request) {
     }
 
     const checksumPayload = getReturnChecksumPayload(payload);
+    const transactionData = payload.transaction_id
+        ? await fetchBayarcashTransaction(payload.transaction_id, config)
+        : null;
     let verified = verifyChecksum(checksumPayload, payload.checksum, config.apiSecretKey);
 
-    if (!verified && payload.transaction_id) {
-        const transactionData = await fetchBayarcashTransaction(payload.transaction_id, config);
+    if (!verified && transactionData) {
         verified = verifyReturnAgainstTransaction(payload, transactionData);
     }
 
@@ -1728,10 +1802,10 @@ async function handleCallback(request) {
     const normalizedPayload = normalizeReturnPayload(payload, verified, existingRecord || {});
 
     if (normalizedPayload.orderNumber) {
-        const mergedRecord = {
+        const mergedRecord = enrichRecordFromTransaction({
             ...(existingRecord || {}),
             ...normalizedPayload,
-        };
+        }, transactionData);
         const finalRecord = await maybeSendPaymentNotifications(mergedRecord);
         await savePaymentRecord(finalRecord);
     }
