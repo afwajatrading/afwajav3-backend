@@ -1941,8 +1941,7 @@ async function handleVerifyReturn(request) {
             ...(existingRecord || {}),
             ...normalizedPayload,
         }, bookingSnapshot), transactionData);
-        const finalRecord = await maybeSendPaymentNotifications(mergedRecord);
-        await savePaymentRecord(finalRecord);
+        await savePaymentRecord(mergedRecord);
     }
 
     return jsonResponse(verified ? 200 : 400, normalizedPayload, headers);
@@ -1978,14 +1977,56 @@ async function handleCallback(request) {
             ...(existingRecord || {}),
             ...normalizedPayload,
         }, bookingSnapshot), transactionData);
-        const finalRecord = await maybeSendPaymentNotifications(mergedRecord);
-        await savePaymentRecord(finalRecord);
+        await savePaymentRecord(mergedRecord);
     }
 
     return jsonResponse(verified ? 200 : 400, {
         received: true,
         verified,
         state: normalizedPayload.state,
+    }, headers);
+}
+
+async function handleFinalizeBooking(request) {
+    const headers = buildCorsHeaders(request);
+    let body;
+
+    try {
+        body = await parseRequestBody(request);
+    } catch {
+        return jsonResponse(400, { error: "Invalid finalize payload." }, headers);
+    }
+
+    const orderNumber = trimValue(body.orderNumber);
+    const transactionId = trimValue(body.transactionId);
+    const bookingSnapshot = decodeBookingSnapshot(body.bookingSnapshot);
+
+    if (!orderNumber || !transactionId) {
+        return jsonResponse(400, { error: "Order number and transaction ID are required." }, headers);
+    }
+
+    const existingRecord = await readPaymentRecord(orderNumber);
+
+    if (!existingRecord || existingRecord.verified === false) {
+        return jsonResponse(409, { error: "Booking record is not verified yet." }, headers);
+    }
+
+    if (trimValue(existingRecord.transactionId) && trimValue(existingRecord.transactionId) !== transactionId) {
+        return jsonResponse(409, { error: "Transaction ID does not match the verified booking record." }, headers);
+    }
+
+    const mergedRecord = enrichRecordFromSnapshot({
+        ...existingRecord,
+    }, bookingSnapshot);
+    const finalRecord = await maybeSendPaymentNotifications(mergedRecord);
+    await savePaymentRecord(finalRecord);
+
+    return jsonResponse(200, {
+        ok: true,
+        orderNumber: finalRecord.orderNumber || orderNumber,
+        notificationEmailState: finalRecord.notificationEmailState || "",
+        customerNotificationEmailSent: finalRecord.customerNotificationEmailSent === true,
+        adminNotificationEmailSent: finalRecord.adminNotificationEmailSent === true,
     }, headers);
 }
 
@@ -2088,6 +2129,10 @@ export default async function handler(request) {
 
     if (request.method === "POST" && pathname === "/api/bayarcash/callback") {
         return handleCallback(request);
+    }
+
+    if (request.method === "POST" && pathname === "/api/bayarcash/finalize-booking") {
+        return handleFinalizeBooking(request);
     }
 
     if (request.method === "GET" && pathname === "/dev/email-preview") {
