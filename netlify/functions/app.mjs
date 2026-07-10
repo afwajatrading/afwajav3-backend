@@ -1001,6 +1001,22 @@ async function createEmailPreviewRecord() {
     return createEmailPreviewFallbackRecord();
 }
 
+function hasCompleteBookingNotificationData(record) {
+    return [
+        record?.orderNumber,
+        record?.customerName,
+        record?.customerEmail,
+        record?.customerPhone,
+        record?.carName,
+        record?.pickupDate,
+        record?.pickupTime,
+        record?.pickupLocation,
+        record?.returnDate,
+        record?.returnTime,
+        record?.returnLocation,
+    ].every((value) => trimValue(value));
+}
+
 async function maybeSendPaymentNotifications(record) {
     if (!record || record.verified === false) {
         return record;
@@ -1014,9 +1030,7 @@ async function maybeSendPaymentNotifications(record) {
     }
 
     const notificationEmailState = getNotificationEmailState(record.state);
-    const shouldSendEmail = emailEnabled && record.notificationEmailState !== notificationEmailState;
-
-    if (!notificationEmailState || !shouldSendEmail) {
+    if (!notificationEmailState || !hasCompleteBookingNotificationData(record)) {
         return record;
     }
 
@@ -1024,22 +1038,39 @@ async function maybeSendPaymentNotifications(record) {
         ...record,
         adminEmail: emailConfig.adminEmail,
     };
+    const customerEmail = notificationEmailState === "success"
+        ? createCustomerEmail(enrichedRecord)
+        : createCustomerUnsuccessfulEmail(enrichedRecord);
+    const adminEmail = notificationEmailState === "success"
+        ? createAdminEmail(enrichedRecord)
+        : createAdminUnsuccessfulEmail(enrichedRecord);
+    const shouldSendCustomerEmail = trimValue(customerEmail.to)
+        && (
+            record.customerNotificationEmailSent !== true
+            || record.customerNotificationEmailState !== notificationEmailState
+        );
+    const shouldSendAdminEmail = trimValue(adminEmail.to)
+        && (
+            record.adminNotificationEmailSent !== true
+            || record.adminNotificationEmailState !== notificationEmailState
+        );
+
+    if (!shouldSendCustomerEmail && !shouldSendAdminEmail) {
+        return {
+            ...record,
+            notificationEmailSent: record.customerNotificationEmailSent === true || record.adminNotificationEmailSent === true,
+            notificationEmailState,
+        };
+    }
 
     try {
-        const customerEmail = notificationEmailState === "success"
-            ? createCustomerEmail(enrichedRecord)
-            : createCustomerUnsuccessfulEmail(enrichedRecord);
-        const adminEmail = notificationEmailState === "success"
-            ? createAdminEmail(enrichedRecord)
-            : createAdminUnsuccessfulEmail(enrichedRecord);
-
         const emailTasks = [];
 
-        if (trimValue(customerEmail.to)) {
+        if (shouldSendCustomerEmail) {
             emailTasks.push(sendEmail(customerEmail, emailConfig));
         }
 
-        if (trimValue(adminEmail.to)) {
+        if (shouldSendAdminEmail) {
             emailTasks.push(sendEmail(adminEmail, emailConfig));
         }
 
@@ -1052,8 +1083,16 @@ async function maybeSendPaymentNotifications(record) {
 
         const updatedRecord = {
             ...record,
-            notificationEmailSent: notificationEmailState === "success",
+            notificationEmailSent: true,
             notificationEmailState,
+            customerNotificationEmailSent: record.customerNotificationEmailSent === true || shouldSendCustomerEmail,
+            customerNotificationEmailState: shouldSendCustomerEmail
+                ? notificationEmailState
+                : (record.customerNotificationEmailState || ""),
+            adminNotificationEmailSent: record.adminNotificationEmailSent === true || shouldSendAdminEmail,
+            adminNotificationEmailState: shouldSendAdminEmail
+                ? notificationEmailState
+                : (record.adminNotificationEmailState || ""),
         };
 
         await savePaymentRecord(updatedRecord);
