@@ -103,7 +103,7 @@
             modal_days: "Rental Duration",
             modal_delivery_charge: "Delivery Charge",
             modal_collection_charge: "Return Pickup Charge",
-            modal_total: "Estimated Total",
+            modal_total: "Amount Payable",
             modal_total_note: "Checkout amount includes rental charges, refundable deposit, and any extra-hour charges after rental ended. Deposit will be returned based on the rental terms after vehicle handover.",
             modal_date: "Pick-up Date",
             modal_return_date: "Return Date",
@@ -232,7 +232,7 @@
             modal_days: "Tempoh Sewaan",
             modal_delivery_charge: "Caj Delivery",
             modal_collection_charge: "Caj Pickup Semula",
-            modal_total: "Anggaran Jumlah",
+            modal_total: "Jumlah perlu dibayar",
             modal_total_note: "Jumlah checkout merangkumi caj sewaan, deposit pulang, dan sebarang caj lebihan jam selepas tempoh sewaan tamat. Deposit akan dipulangkan mengikut terma sewaan selepas serahan kenderaan.",
             modal_date: "Tarikh Ambil",
             modal_return_date: "Tarikh Pulang",
@@ -346,6 +346,7 @@
         delivery: document.getElementById("booking-summary-delivery"),
         collection: document.getElementById("booking-summary-collection"),
         total: document.getElementById("booking-summary-total"),
+        mobileTotal: document.getElementById("booking-mobile-total"),
     };
 
     const carIndex = createCarIndex();
@@ -1402,12 +1403,18 @@
         if (!bookingPickupDate?.value || !bookingReturnDate?.value) {
             bookingSummary.days.textContent = t("modal_days_empty");
             bookingSummary.total.textContent = "-";
+            if (bookingSummary.mobileTotal) {
+                bookingSummary.mobileTotal.textContent = "-";
+            }
             return;
         }
 
         if (scheduleValidation.status === "invalid") {
             bookingSummary.days.textContent = scheduleValidation.message;
             bookingSummary.total.textContent = "-";
+            if (bookingSummary.mobileTotal) {
+                bookingSummary.mobileTotal.textContent = "-";
+            }
             return;
         }
 
@@ -1422,6 +1429,9 @@
         if (!rentalPricing) {
             bookingSummary.days.textContent = t("modal_days_empty");
             bookingSummary.total.textContent = "-";
+            if (bookingSummary.mobileTotal) {
+                bookingSummary.mobileTotal.textContent = "-";
+            }
             return;
         }
 
@@ -1435,7 +1445,11 @@
             ?? (rentalCharges + selectedCar.deposit + transportCharges);
 
         bookingSummary.days.textContent = formatRentalDuration(rentalPricing);
-        bookingSummary.total.textContent = formatCurrency(totalPayable);
+        const totalPayableText = formatCurrency(totalPayable);
+        bookingSummary.total.textContent = totalPayableText;
+        if (bookingSummary.mobileTotal) {
+            bookingSummary.mobileTotal.textContent = totalPayableText;
+        }
     }
 
     function setBookingError(message) {
