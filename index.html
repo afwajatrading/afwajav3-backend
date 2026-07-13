@@ -14,9 +14,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Tailwind CSS -->
-    <script src="assets/js/tailwind-config.js?v=20260515b"></script>
+    <script src="assets/js/tailwind-config.js?v=20260713a"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/site.css?v=20260515b">
+    <link rel="stylesheet" href="assets/css/site.css?v=20260713a">
 </head>
 <body class="font-poppins text-slate-800 bg-slate-50 antialiased">
 
@@ -248,7 +248,7 @@
                                         <p id="booking-summary-collection" class="mt-1 font-semibold text-white">-</p>
                                     </div>
                                     <div class="rounded-2xl bg-white/10 px-4 py-3">
-                                        <p class="text-cyan-100/80" data-i18n="modal_total">Estimated Total</p>
+                                        <p class="text-cyan-100/80" data-i18n="modal_total">Amount Payable</p>
                                         <p id="booking-summary-total" class="mt-1 font-semibold text-white">-</p>
                                     </div>
                                 </div>
@@ -397,6 +397,16 @@
                                 <input id="booking-terms-agreement" name="termsAgreement" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-slate-300 text-afwaja-teal focus:ring-afwaja-teal">
                                 <span data-i18n="modal_terms_agreement_html">I agree to the <a href="terms.html" target="_blank" rel="noopener noreferrer" class="font-semibold text-afwaja-teal underline underline-offset-2 hover:text-afwaja-navy">Terms &amp; Conditions</a> before proceeding to BayarCash.</span>
                             </label>
+
+                            <div class="sm:hidden rounded-3xl border border-cyan-100 bg-cyan-50 px-5 py-4 shadow-sm">
+                                <div class="flex items-center justify-between gap-4">
+                                    <div>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-afwaja-teal" data-i18n="modal_total">Amount Payable</p>
+                                        <p class="mt-1 text-xs leading-relaxed text-slate-500" data-i18n="modal_total_note">Checkout amount includes rental charges and refundable deposit. Deposit will be returned based on the rental terms after vehicle handover.</p>
+                                    </div>
+                                    <p id="booking-mobile-total" class="shrink-0 text-2xl font-bold text-afwaja-navy">-</p>
+                                </div>
+                            </div>
 
                             <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
                                 <button type="button" data-booking-close class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-600 hover:border-slate-300 hover:text-slate-800 transition-colors" data-i18n="modal_cancel">Cancel</button>
@@ -620,10 +630,10 @@
         </div>
     </footer>
 
-    <script src="assets/js/fleet-data.js?v=20260515b"></script>
-    <script src="assets/js/shared.js?v=20260516a"></script>
-    <script src="assets/js/site-config.js?v=20260516a"></script>
-    <script src="assets/js/runtime-config.js?v=20260516a"></script>
-    <script src="assets/js/index.js?v=20260516a"></script>
+    <script src="assets/js/fleet-data.js?v=20260713a"></script>
+    <script src="assets/js/shared.js?v=20260713a"></script>
+    <script src="assets/js/site-config.js?v=20260713a"></script>
+    <script src="assets/js/runtime-config.js?v=20260713a"></script>
+    <script src="assets/js/index.js?v=20260713a"></script>
 </body>
 </html>
