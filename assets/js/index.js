@@ -346,6 +346,11 @@
         delivery: document.getElementById("booking-summary-delivery"),
         collection: document.getElementById("booking-summary-collection"),
         total: document.getElementById("booking-summary-total"),
+        mobileRate: document.getElementById("booking-mobile-rate"),
+        mobileDays: document.getElementById("booking-mobile-days"),
+        mobileDelivery: document.getElementById("booking-mobile-delivery"),
+        mobileCollection: document.getElementById("booking-mobile-collection"),
+        mobileDeposit: document.getElementById("booking-mobile-deposit"),
         mobileTotal: document.getElementById("booking-mobile-total"),
     };
 
@@ -1376,9 +1381,15 @@
         if (bookingSummary.rate) {
             bookingSummary.rate.textContent = `${formatCurrency(selectedCar.price)} (${t("rate_standard")})`;
         }
+        if (bookingSummary.mobileRate) {
+            bookingSummary.mobileRate.textContent = `${formatCurrency(selectedCar.price)} (${t("rate_standard")})`;
+        }
 
         if (bookingSummary.deposit) {
             bookingSummary.deposit.textContent = formatCurrency(selectedCar.deposit);
+        }
+        if (bookingSummary.mobileDeposit) {
+            bookingSummary.mobileDeposit.textContent = formatCurrency(selectedCar.deposit);
         }
 
         if (bookingSummary.delivery) {
@@ -1386,9 +1397,19 @@
                 ? formatCurrency(deliveryQuote.pickupCharge)
                 : "-";
         }
+        if (bookingSummary.mobileDelivery) {
+            bookingSummary.mobileDelivery.textContent = deliveryQuote.status === "ready"
+                ? formatCurrency(deliveryQuote.pickupCharge)
+                : "-";
+        }
 
         if (bookingSummary.collection) {
             bookingSummary.collection.textContent = deliveryQuote.status === "ready"
+                ? formatCurrency(deliveryQuote.collectionCharge)
+                : "-";
+        }
+        if (bookingSummary.mobileCollection) {
+            bookingSummary.mobileCollection.textContent = deliveryQuote.status === "ready"
                 ? formatCurrency(deliveryQuote.collectionCharge)
                 : "-";
         }
@@ -1403,6 +1424,9 @@
         if (!bookingPickupDate?.value || !bookingReturnDate?.value) {
             bookingSummary.days.textContent = t("modal_days_empty");
             bookingSummary.total.textContent = "-";
+            if (bookingSummary.mobileDays) {
+                bookingSummary.mobileDays.textContent = t("modal_days_empty");
+            }
             if (bookingSummary.mobileTotal) {
                 bookingSummary.mobileTotal.textContent = "-";
             }
@@ -1412,6 +1436,9 @@
         if (scheduleValidation.status === "invalid") {
             bookingSummary.days.textContent = scheduleValidation.message;
             bookingSummary.total.textContent = "-";
+            if (bookingSummary.mobileDays) {
+                bookingSummary.mobileDays.textContent = scheduleValidation.message;
+            }
             if (bookingSummary.mobileTotal) {
                 bookingSummary.mobileTotal.textContent = "-";
             }
@@ -1429,6 +1456,9 @@
         if (!rentalPricing) {
             bookingSummary.days.textContent = t("modal_days_empty");
             bookingSummary.total.textContent = "-";
+            if (bookingSummary.mobileDays) {
+                bookingSummary.mobileDays.textContent = t("modal_days_empty");
+            }
             if (bookingSummary.mobileTotal) {
                 bookingSummary.mobileTotal.textContent = "-";
             }
@@ -1438,13 +1468,20 @@
         if (bookingSummary.rate) {
             bookingSummary.rate.textContent = formatRateDisplay(rentalPricing);
         }
+        if (bookingSummary.mobileRate) {
+            bookingSummary.mobileRate.textContent = formatRateDisplay(rentalPricing);
+        }
 
         const rentalCharges = rentalPricing.rentalCharge;
         const transportCharges = deliveryQuote.status === "ready" ? deliveryQuote.totalCharge : 0;
         const totalPayable = getCheckoutTotalOverride(selectedCar.name)
             ?? (rentalCharges + selectedCar.deposit + transportCharges);
 
-        bookingSummary.days.textContent = formatRentalDuration(rentalPricing);
+        const rentalDurationText = formatRentalDuration(rentalPricing);
+        bookingSummary.days.textContent = rentalDurationText;
+        if (bookingSummary.mobileDays) {
+            bookingSummary.mobileDays.textContent = rentalDurationText;
+        }
         const totalPayableText = formatCurrency(totalPayable);
         bookingSummary.total.textContent = totalPayableText;
         if (bookingSummary.mobileTotal) {
