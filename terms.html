@@ -21,26 +21,44 @@
 <body class="font-poppins text-slate-800 bg-slate-50 antialiased selection:bg-afwaja-cyan selection:text-white">
 
     <!-- Simple Navbar -->
-    <nav class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <a href="index.html" class="flex items-center gap-2 text-slate-600 hover:text-afwaja-teal transition-colors font-medium">
-                    <i class="fas fa-arrow-left"></i> <span data-i18n="nav_back">Kembali ke Laman Utama</span>
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md shadow-sm z-50 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="index.html" class="flex items-center gap-3">
+                    <img class="h-12 w-auto" src="https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2KFY3QZ342VQBTS02D1K8E.png" alt="Afwaja Car Rental">
                 </a>
-                
-                <div class="flex items-center gap-6">
-                    <!-- Language Toggle -->
+                <div class="hidden lg:flex items-center space-x-6">
+                    <a href="index.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_home">Utama</a>
+                    <a href="about.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_about">Tentang Kami</a>
+                    <a href="fleet.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_fleet">Kereta</a>
+                    <a href="services.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_services">Servis</a>
+                    <a href="terms.html" class="text-afwaja-teal font-semibold transition" data-i18n="nav_terms">Terma</a>
+                    <a href="contact.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_contact">Hubungi</a>
+                </div>
+                <div class="flex items-center gap-4">
                     <button type="button" class="px-3 py-1 rounded-full border border-slate-300 hover:border-afwaja-teal text-sm font-semibold transition" id="lang-toggle" data-language-toggle>
                         <span class="text-slate-400">EN</span> / <strong>MS</strong>
                     </button>
-                    <img class="h-8 w-auto hidden sm:block" src="https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2KFY3QZ342VQBTS02D1K8E.png" alt="Afwaja Logo">
+                    <button type="button" id="mobile-menu-toggle" class="lg:hidden text-slate-600 hover:text-afwaja-teal focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
                 </div>
+            </div>
+        </div>
+        <div class="lg:hidden hidden bg-white border-t" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_home" data-mobile-nav-link>Utama</a>
+                <a href="about.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_about" data-mobile-nav-link>Tentang Kami</a>
+                <a href="fleet.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_fleet" data-mobile-nav-link>Kereta</a>
+                <a href="services.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_services" data-mobile-nav-link>Servis</a>
+                <a href="terms.html" class="block px-3 py-2 text-afwaja-teal font-semibold" data-i18n="nav_terms" data-mobile-nav-link>Terma</a>
+                <a href="contact.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_contact" data-mobile-nav-link>Hubungi</a>
             </div>
         </div>
     </nav>
 
     <!-- Header Section -->
-    <header class="terms-hero text-white py-12 md:py-16">
+    <header class="terms-hero text-white pt-32 pb-12 md:pt-40 md:pb-16">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-sm" data-i18n="header_title">Terma dan Syarat Sewaan</h1>
             <p class="text-slate-100/90" data-i18n="header_desc">Sila baca dan fahami polisi serta terma sewaan Afwaja Car Rental sebelum membuat tempahan.</p>
@@ -53,44 +71,41 @@
             
             <div class="p-6 md:p-10 space-y-12">
                 
-                <!-- Section 1 -->
+                <!-- Priority 1 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-file-signature w-6"></i> <span data-i18n="sec9_title">Definisi & Dokumen Kontrak</span>
+                    </h2>
+                    <div class="space-y-3 text-slate-600">
+                        <p data-i18n="sec9_p1">Terma ini terpakai kepada semua tempahan dan sewaan kenderaan Afwaja Car Rental. Dengan membuat tempahan, membuat bayaran, menerima kenderaan atau menggunakan servis sewaan, pelanggan dianggap bersetuju dengan terma ini.</p>
+                        <p data-i18n="sec9_p2">Sebutharga, pengesahan tempahan, laporan keadaan kenderaan dan borang perjanjian sewaan adalah sebahagian daripada dokumen kontrak. Jika terdapat perbezaan, dokumen tempahan atau perjanjian bertulis yang terkini akan digunakan.</p>
+                    </div>
+                </section>
+
+                <!-- Priority 2 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-credit-card w-6"></i> <span data-i18n="sec10_title">Tempahan, Kadar Harga & Bayaran</span>
+                    </h2>
+                    <ul class="list-disc list-outside ml-5 space-y-2 text-slate-600">
+                        <li data-i18n="sec10_p1">Tempahan hanya dianggap disahkan selepas bayaran yang diperlukan diterima dan pengesahan tempahan dikeluarkan oleh Afwaja Car Rental.</li>
+                        <li data-i18n="sec10_p2">Gambar kenderaan di laman web adalah rujukan kategori/model. Warna, nombor pendaftaran atau unit tertentu hanya dijamin jika disahkan secara bertulis.</li>
+                        <li data-i18n="sec10_p3">Kadar harga adalah dalam Ringgit Malaysia (RM) dan hanya merangkumi item yang dipaparkan dalam tempahan. Caj tambahan seperti delivery, pickup semula, pemandu tambahan, lebihan mileage, minyak, tol, saman, cleaning, kerosakan atau lewat pulang boleh dikenakan secara berasingan.</li>
+                    </ul>
+                </section>
+
+                <!-- Priority 3 -->
                 <section>
                     <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
                         <i class="fas fa-laptop-house w-6"></i> <span data-i18n="sec1_title">Tempahan Dalam Talian (Online Booking)</span>
                     </h2>
                     <ul class="list-disc list-outside ml-5 space-y-2 text-slate-600">
-                        <li data-i18n="sec1_p1">Bagi tempahan dalam talian, pengesahan akan dihantar melalui emel dalam tempoh satu (1) jam.</li>
+                        <li data-i18n="sec1_p1">Bagi tempahan dalam talian, pengesahan akan dibuat dalam tempoh satu (1) jam.</li>
                         <li data-i18n="sec1_p2">Jika kenderaan tidak tersedia, bayaran akan dipulangkan sepenuhnya (full refund).</li>
                     </ul>
                 </section>
 
-                <!-- Section 2 -->
-                <section>
-                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
-                        <i class="fas fa-map-marker-alt w-6"></i> <span data-i18n="sec2_title">Caj Penghantaran & Pengambilan</span>
-                    </h2>
-                    <p class="text-slate-600 mb-3" data-i18n="sec2_desc">Caj penghantaran dan pickup semula dikira berdasarkan jarak jalan sebenar dari Afwaja Car Rental Cyberjaya.</p>
-                    <ul class="space-y-2 text-slate-600 bg-slate-50 p-4 rounded-lg border border-slate-100">
-                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l1">Ambil sendiri / pulang sendiri di Afwaja Car Rental Cyberjaya</span> <span class="font-bold text-slate-800">RM0</span></li>
-                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l2">Penghantaran ke lokasi ambil (Pick-up Location)</span> <span class="font-bold text-slate-800">RM2/km</span></li>
-                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l3">Pickup semula dari lokasi pulang (Return Location)</span> <span class="font-bold text-slate-800">RM2/km</span></li>
-                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l4">Kiraan jarak</span> <span class="font-bold text-slate-800" data-i18n="sec2_v4">Google Maps</span></li>
-                        <li class="flex justify-between pt-1"><span data-i18n="sec2_l5">Jumlah caj transport</span> <span class="font-bold text-slate-800" data-i18n="sec2_v5">Dikira automatik</span></li>
-                    </ul>
-                </section>
-
-                <!-- Section 3 -->
-                <section>
-                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
-                        <i class="fas fa-shield-alt w-6"></i> <span data-i18n="sec3_title">Deposit Keselamatan</span>
-                    </h2>
-                    <ul class="list-disc list-outside ml-5 space-y-2 text-slate-600">
-                        <li data-i18n="sec3_p1">Deposit keselamatan sebanyak RM100 hingga RM400 bagi setiap kenderaan akan dikenakan semasa pengambilan, bergantung kepada jenis kenderaan.</li>
-                        <li data-i18n="sec3_p2">Deposit akan dipulangkan dalam tempoh 3 hingga 14 hari bekerja selepas kenderaan dipulangkan, tertakluk kepada keadaan kenderaan yang baik serta tiada saman atau denda.</li>
-                    </ul>
-                </section>
-
-                <!-- Section 4 -->
+                <!-- Priority 4 -->
                 <section>
                     <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
                         <i class="fas fa-users w-6"></i> <span data-i18n="sec4_title">Pemandu Tambahan, Had Umur & Lesen</span>
@@ -111,7 +126,33 @@
                     </div>
                 </section>
 
-                <!-- Section 5 -->
+                <!-- Priority 5 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-map-marker-alt w-6"></i> <span data-i18n="sec2_title">Caj Penghantaran & Pengambilan</span>
+                    </h2>
+                    <p class="text-slate-600 mb-3" data-i18n="sec2_desc">Caj penghantaran dan pickup semula dikira berdasarkan jarak jalan sebenar dari Afwaja Car Rental Cyberjaya.</p>
+                    <ul class="space-y-2 text-slate-600 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l1">Ambil sendiri / pulang sendiri di Afwaja Car Rental Cyberjaya</span> <span class="font-bold text-slate-800">RM0</span></li>
+                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l2">Penghantaran ke lokasi ambil (Pick-up Location)</span> <span class="font-bold text-slate-800">RM2/km</span></li>
+                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l3">Pickup semula dari lokasi pulang (Return Location)</span> <span class="font-bold text-slate-800">RM2/km</span></li>
+                        <li class="flex justify-between border-b border-slate-200 pb-2"><span data-i18n="sec2_l4">Kiraan jarak</span> <span class="font-bold text-slate-800" data-i18n="sec2_v4">Google Maps</span></li>
+                        <li class="flex justify-between pt-1"><span data-i18n="sec2_l5">Jumlah caj transport</span> <span class="font-bold text-slate-800" data-i18n="sec2_v5">Dikira automatik</span></li>
+                    </ul>
+                </section>
+
+                <!-- Priority 6 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-shield-alt w-6"></i> <span data-i18n="sec3_title">Deposit Keselamatan</span>
+                    </h2>
+                    <ul class="list-disc list-outside ml-5 space-y-2 text-slate-600">
+                        <li data-i18n="sec3_p1">Deposit keselamatan sebanyak RM100 hingga RM400 bagi setiap kenderaan akan dikenakan semasa pengambilan, bergantung kepada jenis kenderaan.</li>
+                        <li data-i18n="sec3_p2">Deposit akan dipulangkan dalam tempoh 3 hingga 14 hari bekerja selepas kenderaan dipulangkan, tertakluk kepada keadaan kenderaan yang baik serta tiada saman atau denda.</li>
+                    </ul>
+                </section>
+
+                <!-- Priority 7 -->
                 <section>
                     <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
                         <i class="fas fa-clock w-6"></i> <span data-i18n="sec5_title">Tempoh Sewaan, Lanjutan & Perbatuan</span>
@@ -123,7 +164,7 @@
                     </ul>
                 </section>
 
-                <!-- Section 6 -->
+                <!-- Priority 8 -->
                 <section>
                     <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
                         <i class="fas fa-clipboard-check w-6"></i> <span data-i18n="sec6_title">Pengambilan & Pengesahan Kenderaan</span>
@@ -144,7 +185,24 @@
                     </div>
                 </section>
 
-                <!-- Section 7 -->
+                <!-- Priority 9 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-ban w-6"></i> <span data-i18n="sec11_title">Kegunaan Dibenarkan & Dilarang</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-slate-600 text-sm">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                            <h3 class="font-bold text-slate-800 mb-2" data-i18n="sec11_sub1">Kegunaan Dibenarkan</h3>
+                            <p data-i18n="sec11_p1">Kenderaan hendaklah dipandu secara berhemah, mematuhi undang-undang Malaysia, menggunakan minyak yang betul, dikunci apabila tidak digunakan dan dijaga daripada kerosakan, kehilangan atau kecurian.</p>
+                        </div>
+                        <div class="rounded-2xl border border-rose-100 bg-rose-50 p-5">
+                            <h3 class="font-bold text-rose-700 mb-2" data-i18n="sec11_sub2">Kegunaan Dilarang</h3>
+                            <p data-i18n="sec11_p2">Kenderaan tidak boleh digunakan oleh pemandu tidak berdaftar, pemandu mabuk/tidak layak, untuk lumba, towing, off-road, latihan memandu, aktiviti haram, membawa muatan berlebihan, merokok, membawa bahan berbahaya atau membawa haiwan tanpa kebenaran bertulis.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Priority 10 -->
                 <section>
                     <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
                         <i class="fas fa-car-crash w-6"></i> <span data-i18n="sec7_title">Insurans, Lebihan (Excess) & Kemalangan</span>
@@ -184,14 +242,13 @@
                     </div>
                 </section>
 
-                <!-- Section 8 -->
+                <!-- Priority 11 -->
                 <section>
                     <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
                         <i class="fas fa-list-ul w-6"></i> <span data-i18n="sec8_title">Terma Tambahan, Pemulangan & Pembatalan</span>
                     </h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-slate-600 text-sm">
-                        <!-- Column 1 -->
                         <div class="space-y-4">
                             <div>
                                 <h3 class="font-bold text-slate-800" data-i18n="sec8_sub1">Minyak</h3>
@@ -211,7 +268,6 @@
                             </div>
                         </div>
 
-                        <!-- Column 2 -->
                         <div class="space-y-4">
                             <div>
                                 <h3 class="font-bold text-slate-800" data-i18n="sec8_sub5">Polisi Pembatalan</h3>
@@ -242,6 +298,49 @@
                     </div>
                 </section>
 
+                <!-- Priority 12 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-triangle-exclamation w-6"></i> <span data-i18n="sec12_title">Kerosakan Mekanikal, Breakdown & Kenderaan Ganti</span>
+                    </h2>
+                    <ul class="list-disc list-outside ml-5 space-y-2 text-slate-600">
+                        <li data-i18n="sec12_p1">Jika kenderaan mengalami masalah mekanikal yang bukan berpunca daripada salah guna atau kecuaian pelanggan, pelanggan hendaklah berhenti di tempat selamat dan menghubungi Afwaja Car Rental untuk arahan lanjut.</li>
+                        <li data-i18n="sec12_p2">Pembaikan, towing atau pembelian alat ganti tanpa kelulusan Afwaja Car Rental tidak akan ditanggung, kecuali tindakan segera yang perlu untuk keselamatan nyawa atau mengelakkan kerosakan lebih besar.</li>
+                        <li data-i18n="sec12_p3">Kenderaan ganti, upgrade, refund atau penyelesaian lain adalah tertakluk kepada lokasi, ketersediaan kenderaan, punca kerosakan dan semakan syarikat.</li>
+                    </ul>
+                </section>
+
+                <!-- Priority 13 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-box-open w-6"></i> <span data-i18n="sec13_title">Barang Peribadi Pelanggan</span>
+                    </h2>
+                    <p class="text-slate-600" data-i18n="sec13_p1">Pelanggan bertanggungjawab ke atas semua barang peribadi yang dibawa atau ditinggalkan dalam kenderaan. Afwaja Car Rental tidak bertanggungjawab atas kehilangan, kecurian atau kerosakan barang peribadi kecuali berpunca daripada kecuaian syarikat. Barang yang dijumpai selepas pemulangan boleh disimpan untuk tempoh munasabah sebelum dilupuskan jika tidak dituntut.</p>
+                </section>
+
+                <!-- Priority 14 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-user-shield w-6"></i> <span data-i18n="sec14_title">Data Peribadi, Rekod & Penjejakan Kenderaan</span>
+                    </h2>
+                    <div class="space-y-3 text-slate-600">
+                        <p data-i18n="sec14_p1">Afwaja Car Rental boleh memproses maklumat identiti, lesen, kontak, pembayaran dan tempahan untuk tujuan pentadbiran sewaan, pengesahan, keselamatan, pencegahan penipuan, tuntutan bayaran, kutipan hutang dan pematuhan undang-undang.</p>
+                        <p data-i18n="sec14_p2">Kenderaan mungkin mempunyai sistem keselamatan, GPS, telematik atau teknologi pengeluar. Data berkaitan kenderaan boleh digunakan untuk mengesan kenderaan hilang/lewat pulang, bantuan roadside, penyelenggaraan, siasatan salah guna dan perlindungan hak syarikat, tertakluk kepada undang-undang Malaysia.</p>
+                    </div>
+                </section>
+
+                <!-- Priority 15 -->
+                <section>
+                    <h2 class="text-xl font-bold text-afwaja-teal mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fas fa-scale-balanced w-6"></i> <span data-i18n="sec15_title">Liabiliti, Force Majeure & Undang-Undang</span>
+                    </h2>
+                    <div class="space-y-3 text-slate-600">
+                        <p data-i18n="sec15_p1">Afwaja Car Rental tidak bertanggungjawab ke atas kerugian tidak langsung seperti kehilangan keuntungan, janji temu, jadual perjalanan atau kos sampingan lain, setakat yang dibenarkan oleh undang-undang.</p>
+                        <p data-i18n="sec15_p2">Mana-mana pihak tidak bertanggungjawab atas kelewatan atau kegagalan yang berpunca daripada keadaan di luar kawalan munasabah seperti bencana alam, cuaca buruk, tindakan kerajaan, penutupan jalan, gangguan utiliti, gangguan rangkaian atau kecemasan besar.</p>
+                        <p data-i18n="sec15_p3">Terma ini tertakluk kepada undang-undang Malaysia. Sebarang pertikaian akan dirujuk mengikut saluran yang dibenarkan di Malaysia, termasuk mahkamah atau tribunal pengguna yang berkaitan jika layak.</p>
+                    </div>
+                </section>
+
             </div>
         </div>
     </main>
@@ -249,6 +348,10 @@
     <!-- Footer -->
     <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-center text-sm">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap items-center justify-center gap-4 mb-5 text-sm">
+                <a href="terms.html" class="text-white">Terms of Service</a>
+                <a href="refund-policy.html" class="hover:text-afwaja-cyan transition">Refund Policy</a>
+            </div>
             <div class="flex flex-wrap items-center justify-center gap-3 mb-5 text-sm">
                 <a href="https://www.instagram.com/carrentalcyber/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-full border border-slate-700 px-4 py-2 hover:border-afwaja-cyan hover:text-white transition-colors">
                     <i class="fab fa-instagram text-afwaja-cyan"></i>
@@ -269,5 +372,6 @@
 
     <script src="assets/js/shared.js?v=20260515b"></script>
     <script src="assets/js/terms.js?v=20260515b"></script>
+    <script>window.AfwajaSite?.setupMobileMenu?.();</script>
 </body>
 </html>

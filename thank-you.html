@@ -9,27 +9,48 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="assets/js/tailwind-config.js"></script>
+    <script src="assets/js/tailwind-config.js?v=20260710a"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/site.css">
+    <link rel="stylesheet" href="assets/css/site.css?v=20260710a">
 </head>
 <body class="font-poppins text-slate-800 bg-slate-50 antialiased selection:bg-afwaja-cyan selection:text-white">
-    <nav class="bg-white shadow-sm sticky top-0 z-50">
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md shadow-sm z-50 transition-all duration-300" id="navbar">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <a href="index.html" class="flex items-center gap-2 text-slate-600 hover:text-afwaja-teal transition-colors font-medium">
-                    <i class="fas fa-arrow-left"></i>
-                    <span data-i18n="nav_back">Kembali ke Laman Utama</span>
+            <div class="flex justify-between items-center h-20">
+                <a href="index.html" class="flex items-center gap-3">
+                    <img class="h-12 w-auto" src="https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2KFY3QZ342VQBTS02D1K8E.png" alt="Afwaja Car Rental">
                 </a>
-
-                <div class="flex items-center gap-6">
-                    <img class="h-8 w-auto hidden sm:block" src="https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2KFY3QZ342VQBTS02D1K8E.png" alt="Afwaja Logo">
+                <div class="hidden lg:flex items-center space-x-6">
+                    <a href="index.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_home">Utama</a>
+                    <a href="about.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_about">Tentang Kami</a>
+                    <a href="fleet.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_fleet">Kereta</a>
+                    <a href="services.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_services">Servis</a>
+                    <a href="terms.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_terms">Terma</a>
+                    <a href="contact.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_contact">Hubungi</a>
                 </div>
+                <div class="flex items-center gap-4">
+                    <button type="button" class="px-3 py-1 rounded-full border border-slate-300 hover:border-afwaja-teal text-sm font-semibold transition" id="lang-toggle" data-language-toggle>
+                        <span class="text-slate-400">EN</span> / <strong>MS</strong>
+                    </button>
+                    <button type="button" id="mobile-menu-toggle" class="lg:hidden text-slate-600 hover:text-afwaja-teal focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="lg:hidden hidden bg-white border-t" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_home" data-mobile-nav-link>Utama</a>
+                <a href="about.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_about" data-mobile-nav-link>Tentang Kami</a>
+                <a href="fleet.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_fleet" data-mobile-nav-link>Kereta</a>
+                <a href="services.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_services" data-mobile-nav-link>Servis</a>
+                <a href="terms.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_terms" data-mobile-nav-link>Terma</a>
+                <a href="contact.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_contact" data-mobile-nav-link>Hubungi</a>
             </div>
         </div>
     </nav>
 
-    <main class="min-h-[calc(100vh-64px)] hero-surface relative overflow-hidden">
+    <main class="min-h-[calc(100vh-80px)] hero-surface relative overflow-hidden pt-20">
         <div class="absolute inset-0">
             <div class="hero-grid-pattern absolute inset-0"></div>
             <div class="hero-orb hero-orb-cyan h-64 w-64 -left-16 top-24 md:h-80 md:w-80 md:left-8 md:top-16"></div>
@@ -71,7 +92,7 @@
                     </div>
 
                     <div class="mt-8 flex flex-col sm:flex-row gap-3">
-                        <a id="payment-retry-button" href="index.html#fleet" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1f2d3d] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 border border-[#1f2d3d] hover:bg-[#16212e] transition-colors">
+                        <a id="payment-retry-button" href="fleet.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1f2d3d] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 border border-[#1f2d3d] hover:bg-[#16212e] transition-colors">
                             <i class="fas fa-rotate-right text-white"></i>
                             <span data-i18n="try_payment_again">Cuba Bayar Semula</span>
                         </a>
@@ -79,7 +100,7 @@
                             <i class="fas fa-house text-white"></i>
                             <span data-i18n="back_home">Kembali ke Laman Utama</span>
                         </a>
-                        <a href="index.html#fleet" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 hover:border-afwaja-teal hover:text-afwaja-teal transition-colors">
+                        <a href="fleet.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 hover:border-afwaja-teal hover:text-afwaja-teal transition-colors">
                             <i class="fas fa-car-side"></i>
                             <span data-i18n="book_another">Tempah Kereta Lain</span>
                         </a>
@@ -90,11 +111,16 @@
     </main>
 
     <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-center text-sm">
+        <div class="mb-4 flex flex-wrap items-center justify-center gap-4">
+            <a href="terms.html" class="hover:text-afwaja-cyan transition">Terms of Service</a>
+            <a href="refund-policy.html" class="hover:text-afwaja-cyan transition">Refund Policy</a>
+        </div>
         <p>&copy; <span id="year"></span> Afwaja Car Rental. <span data-i18n="footer_copy">Hak Cipta Terpelihara.</span></p>
     </footer>
 
-    <script src="assets/js/shared.js?v=20260516a"></script>
-    <script src="assets/js/site-config.js?v=20260516a"></script>
-    <script src="assets/js/thank-you.js?v=20260516a"></script>
+    <script src="assets/js/shared.js?v=20260710a"></script>
+    <script src="assets/js/site-config.js?v=20260710a"></script>
+    <script src="assets/js/thank-you.js?v=20260710a"></script>
+    <script>window.AfwajaSite?.setupMobileMenu?.();</script>
 </body>
 </html>

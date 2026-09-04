@@ -4,6 +4,12 @@
 
     const translations = {
         en: {
+            nav_home: "Home",
+            nav_about: "About Us",
+            nav_fleet: "Cars",
+            nav_services: "Services",
+            nav_terms: "Terms",
+            nav_contact: "Contact",
             nav_back: "Back to Home",
             hero_badge: "Distance-Based Estimate",
             hero_title: "Logistics Cost Calculator",
@@ -40,6 +46,12 @@
             footer_copy: "All Rights Reserved.",
         },
         ms: {
+            nav_home: "Utama",
+            nav_about: "Tentang Kami",
+            nav_fleet: "Kereta",
+            nav_services: "Servis",
+            nav_terms: "Terma",
+            nav_contact: "Hubungi",
             nav_back: "Kembali ke Laman Utama",
             hero_badge: "Anggaran Berdasarkan Jarak",
             hero_title: "Kalkulator Kos Logistik",

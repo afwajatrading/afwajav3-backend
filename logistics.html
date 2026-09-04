@@ -14,25 +14,43 @@
     <link rel="stylesheet" href="assets/css/site.css?v=20260515b">
 </head>
 <body class="font-poppins text-slate-800 bg-slate-50 antialiased selection:bg-afwaja-cyan selection:text-white">
-    <nav class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-wrap justify-between items-center gap-3 py-3 min-h-16">
-                <a href="index.html" class="flex items-center gap-2 text-sm sm:text-base text-slate-600 hover:text-afwaja-teal transition-colors font-medium">
-                    <i class="fas fa-arrow-left"></i>
-                    <span data-i18n="nav_back">Back to Home</span>
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md shadow-sm z-50 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="index.html" class="flex items-center gap-3">
+                    <img class="h-12 w-auto" src="https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2KFY3QZ342VQBTS02D1K8E.png" alt="Afwaja Car Rental">
                 </a>
-
-                <div class="flex items-center gap-3 sm:gap-6 ml-auto">
+                <div class="hidden lg:flex items-center space-x-6">
+                    <a href="index.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_home">Utama</a>
+                    <a href="about.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_about">Tentang Kami</a>
+                    <a href="fleet.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_fleet">Kereta</a>
+                    <a href="services.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_services">Servis</a>
+                    <a href="terms.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_terms">Terma</a>
+                    <a href="contact.html" class="text-slate-600 hover:text-afwaja-teal font-medium transition" data-i18n="nav_contact">Hubungi</a>
+                </div>
+                <div class="flex items-center gap-4">
                     <button type="button" class="px-3 py-1 rounded-full border border-slate-300 hover:border-afwaja-teal text-sm font-semibold transition" id="lang-toggle" data-language-toggle>
                         <span class="text-slate-400">EN</span> / <strong>MS</strong>
                     </button>
-                    <img class="h-8 w-auto hidden sm:block" src="https://platform-bcl.bsb-cdn.com/media/2026/04/01KP2KFY3QZ342VQBTS02D1K8E.png" alt="Afwaja Logo">
+                    <button type="button" id="mobile-menu-toggle" class="lg:hidden text-slate-600 hover:text-afwaja-teal focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
                 </div>
+            </div>
+        </div>
+        <div class="lg:hidden hidden bg-white border-t" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_home" data-mobile-nav-link>Utama</a>
+                <a href="about.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_about" data-mobile-nav-link>Tentang Kami</a>
+                <a href="fleet.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_fleet" data-mobile-nav-link>Kereta</a>
+                <a href="services.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_services" data-mobile-nav-link>Servis</a>
+                <a href="terms.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_terms" data-mobile-nav-link>Terma</a>
+                <a href="contact.html" class="block px-3 py-2 text-slate-600 font-medium" data-i18n="nav_contact" data-mobile-nav-link>Hubungi</a>
             </div>
         </div>
     </nav>
 
-    <header class="terms-hero text-white py-14 md:py-18">
+    <header class="terms-hero text-white pt-32 pb-14 md:pt-40 md:pb-18">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <span class="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/90" data-i18n="hero_badge">Distance-Based Estimate</span>
             <h1 class="mt-5 text-2xl sm:text-3xl md:text-5xl font-bold text-white drop-shadow-sm" data-i18n="hero_title">Logistics Cost Calculator</h1>
@@ -91,7 +109,7 @@
                             <i class="fas fa-calculator text-white"></i>
                             <span id="logistics-submit-text" class="text-white" data-i18n="calculate_button">Calculate Charges</span>
                         </button>
-                        <a href="index.html#fleet" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white hover:border-afwaja-teal hover:text-afwaja-teal text-slate-700 px-5 py-3 font-semibold transition-colors">
+                        <a href="fleet.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white hover:border-afwaja-teal hover:text-afwaja-teal text-slate-700 px-5 py-3 font-semibold transition-colors">
                             <i class="fas fa-car-side"></i>
                             <span data-i18n="back_to_fleet">Back to Fleet</span>
                         </a>
@@ -139,11 +157,16 @@
     </main>
 
     <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-center text-sm">
-        <p>&copy; <span id="year"></span> Afwaja Car Rental. <span data-i18n="footer_copy">All Rights Reserved.</span></p>
+        <div class="mb-4 flex flex-wrap items-center justify-center gap-4">
+            <a href="terms.html" class="hover:text-afwaja-cyan transition">Terms of Service</a>
+            <a href="refund-policy.html" class="hover:text-afwaja-cyan transition">Refund Policy</a>
+        </div>
+            <p>&copy; <span id="year"></span> Afwaja Car Rental. <span data-i18n="footer_copy">Hak Cipta Terpelihara.</span></p>
     </footer>
 
     <script src="assets/js/shared.js?v=20260515b"></script>
     <script src="assets/js/site-config.js?v=20260515b"></script>
     <script src="assets/js/logistics.js?v=20260515b"></script>
+    <script>window.AfwajaSite?.setupMobileMenu?.();</script>
 </body>
 </html>

@@ -3,3 +3,43 @@
 
 [functions]
   directory = "netlify/functions"
+
+[[redirects]]
+  from = "/about"
+  to = "/about.html"
+  status = 200
+
+[[redirects]]
+  from = "/services"
+  to = "/services.html"
+  status = 200
+
+[[redirects]]
+  from = "/logistics"
+  to = "/logistics.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms"
+  to = "/terms.html"
+  status = 200
+
+[[redirects]]
+  from = "/refund-policy"
+  to = "/refund-policy.html"
+  status = 200
+
+[[redirects]]
+  from = "/contact"
+  to = "/contact.html"
+  status = 200
+
+[[redirects]]
+  from = "/fleet"
+  to = "/fleet.html"
+  status = 200
+
+[[redirects]]
+  from = "/driver-transfer"
+  to = "/driver-transfer.html"
+  status = 200

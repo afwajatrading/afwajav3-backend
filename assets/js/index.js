@@ -48,8 +48,8 @@
 
     const translations = {
         en: {
-            nav_home: "Home", nav_about: "About Us", nav_fleet: "Our Fleet",
-            nav_testimonials: "Testimonials", nav_terms: "Terms", nav_contact: "Contact Us",
+            nav_home: "Home", nav_about: "About Us", nav_fleet: "Cars",
+            nav_services: "Services", nav_testimonials: "Testimonials", nav_terms: "Terms", nav_contact: "Contact",
             hero_badge: "Premium Car Rental",
             hero_title1: "Travel in Comfort and Style with",
             hero_subtitle: "Premium, reliable, and affordable car rentals for your every journey. Experience smooth rides and hassle-free booking today.",
@@ -81,16 +81,31 @@
             review_2: "Very responsive customer service via WhatsApp. The Myvi I rented was well-maintained. Highly recommended for tourists.",
             review_3: "Rented a Vellfire for a family trip. Reasonable price and satisfying service. Will repeat again.",
             terms_title: "Rental Terms & Conditions",
-            term1_title: "Required Documents", term1_desc: "Valid driving license, original IC / Passport, and latest utility bill (water/electric) or student card.",
-            term2_title: "Security Deposit", term2_desc: "A refundable security deposit is required upon vehicle handover. Will be refunded within 3-7 working days after return.",
+            term1_title: "Required Documents", term1_desc: "Valid driving license, original IC / Passport, and proof of address or supporting document when requested.",
+            term2_title: "Security Deposit", term2_desc: "A refundable security deposit is required upon vehicle handover. It will be refunded within 3-14 working days after return, subject to vehicle condition and no outstanding charges.",
             term3_title: "Fuel Policy", term3_desc: "Vehicles must be returned with the same fuel level as when collected. Surcharges apply for insufficient fuel.",
             term4_title: "Driving Area Limits", term4_desc: "Vehicles are strictly for use within Peninsular Malaysia. Off-road driving or track racing is strictly prohibited.",
             term5_title: "Traffic Fines & Summons", term5_desc: "The renter is fully responsible for all traffic summons, parking tickets, and tolls incurred during the rental period.",
-            term6_title: "Extension & Cancellation", term6_desc: "Extensions must be informed 24 hours prior. Cancellations made less than 48 hours will forfeit the booking fee.",
+            term6_title: "Extension & Cancellation", term6_desc: "Extensions must be informed early and are subject to availability. Cancellations made at least 24 hours before pick-up are eligible for a full refund; less than 24 hours or no-show is non-refundable.",
             btn_open_terms: "Read Full Terms Document",
             footer_desc: "Your trusted partner for comfortable, safe, and affordable car rentals across the city.",
             footer_links: "Quick Links", footer_contact: "Contact Us",
+            footer_copy: "All Rights Reserved.",
+            footer_services: "Chauffeur Services",
+            footer_driver_transfer: "Driver & Transfer",
             footer_logistics: "Logistics Calculator",
+            faq_label: "FAQ",
+            faq_title: "Frequently Asked Questions Before Booking",
+            faq_desc: "Quick answers to help you understand booking, payment, deposit and logistics charges.",
+            faq_q1: "How early should I make a booking?",
+            faq_a1: "Online bookings must be made at least 12 hours before the pickup time.",
+            faq_q2: "When will the deposit be returned?",
+            faq_a2: "The deposit is returned within 3 to 14 working days after the car is returned and inspection is completed.",
+            faq_q3: "How is the delivery charge calculated?",
+            faq_a3: "Delivery and return pickup charges are calculated at RM2/km based on the actual road distance from Afwaja Car Rental Cyberjaya.",
+            faq_q4: "What happens if the car is unavailable?",
+            faq_a4: "We will contact you with options to change the car, change the date, or receive a full refund if no suitable vehicle is available.",
+            faq_full_link: "View Full FAQ",
             modal_badge: "Secure Booking",
             modal_title: "Secure Online Booking",
             modal_subtitle: "Complete your trip details below and continue to BayarCash checkout.",
@@ -177,8 +192,8 @@
             booking_error_terms: "Please agree to the Terms & Conditions before proceeding to BayarCash.",
         },
         ms: {
-            nav_home: "Utama", nav_about: "Tentang Kami", nav_fleet: "Kereta Kami",
-            nav_testimonials: "Testimoni", nav_terms: "Terma", nav_contact: "Hubungi Kami",
+            nav_home: "Utama", nav_about: "Tentang Kami", nav_fleet: "Kereta",
+            nav_services: "Servis", nav_testimonials: "Testimoni", nav_terms: "Terma", nav_contact: "Hubungi",
             hero_badge: "Sewa Kereta Premium",
             hero_title1: "Nikmati Perjalanan yang Selesa dan Bergaya bersama",
             hero_subtitle: "Sewa kereta premium, diyakini, dan mampu milik untuk setiap perjalanan anda. Alami pemanduan lancar dan tempahan mudah hari ini.",
@@ -210,16 +225,31 @@
             review_2: "\"Servis pelanggan yang sangat pantas di WhatsApp. Myvi yang saya sewa dijaga rapi. Sangat disyorkan untuk pelancong.\"",
             review_3: "\"Sewa Vellfire untuk trip keluarga. Harga sangat berpatutan dan layanan memuaskan. Akan repeat lagi nanti.\"",
             terms_title: "Terma & Syarat Sewaan",
-            term1_title: "Dokumen Diperlukan", term1_desc: "Lesen memandu yang sah, IC / Pasport asal, dan bil utiliti terkini (air/elektrik) atau kad pelajar.",
-            term2_title: "Deposit Keselamatan", term2_desc: "Deposit keselamatan diperlukan semasa ambil kereta. Akan dipulangkan dalam 3-7 hari bekerja selepas pulangkan kereta.",
+            term1_title: "Dokumen Diperlukan", term1_desc: "Lesen memandu yang sah, IC / Pasport asal, dan bukti alamat atau dokumen sokongan jika diminta.",
+            term2_title: "Deposit Keselamatan", term2_desc: "Deposit keselamatan diperlukan semasa ambil kereta. Akan dipulangkan dalam 3-14 hari bekerja selepas kereta dipulangkan, tertakluk kepada keadaan kenderaan dan tiada bayaran tertunggak.",
             term3_title: "Polisi Minyak", term3_desc: "Kenderaan mesti dipulangkan dengan tahap minyak yang sama. Cas tambahan dikenakan jika minyak tidak mencukupi.",
             term4_title: "Had Kawasan Pandu", term4_desc: "Kenderaan hanya untuk kegunaan di Semenanjung Malaysia. Panduan 'off-road' atau litar lumba adalah dilarang sama sekali.",
             term5_title: "Saman & Tiket Trafik", term5_desc: "Penyewa bertanggungjawab sepenuhnya ke atas semua saman trafik, tiket parking, dan tol sepanjang tempoh sewaan.",
-            term6_title: "Lanjutan & Pembatalan", term6_desc: "Lanjutan masa perlu dimaklumkan 24 jam lebih awal. Pembatalan kurang dari 48 jam, deposit tempahan akan hangus.",
+            term6_title: "Lanjutan & Pembatalan", term6_desc: "Lanjutan masa perlu dimaklumkan awal dan tertakluk kepada kekosongan. Pembatalan sekurang-kurangnya 24 jam sebelum pickup layak untuk refund penuh; kurang 24 jam atau no-show tidak layak refund.",
             btn_open_terms: "Baca Dokumen Penuh Terma",
             footer_desc: "Rakan dipercayai anda untuk sewaan kereta yang selesa, selamat, dan mampu milik di sekitar bandar.",
             footer_links: "Pautan Pantas", footer_contact: "Hubungi Kami",
+            footer_copy: "Hak Cipta Terpelihara.",
+            footer_services: "Servis Chauffeur",
+            footer_driver_transfer: "Driver & Transfer",
             footer_logistics: "Kalkulator Logistik",
+            faq_label: "FAQ",
+            faq_title: "Soalan Lazim Sebelum Tempahan",
+            faq_desc: "Jawapan ringkas untuk bantu anda faham proses booking, bayaran, deposit dan caj logistik.",
+            faq_q1: "Berapa awal saya perlu buat tempahan?",
+            faq_a1: "Tempahan online hanya boleh dibuat sekurang-kurangnya 12 jam lebih awal daripada masa pickup.",
+            faq_q2: "Deposit akan dipulangkan bila?",
+            faq_a2: "Deposit dipulangkan dalam 3 hingga 14 hari bekerja selepas kereta dipulangkan dan pemeriksaan selesai.",
+            faq_q3: "Bagaimana caj delivery dikira?",
+            faq_a3: "Caj delivery dan pickup semula dikira pada RM2/km berdasarkan jarak jalan sebenar dari Afwaja Car Rental Cyberjaya.",
+            faq_q4: "Apa jadi jika kereta tidak tersedia?",
+            faq_a4: "Kami akan hubungi anda untuk pilihan tukar kereta, tukar tarikh, atau refund penuh jika tiada kenderaan sesuai.",
+            faq_full_link: "Lihat FAQ Penuh",
             modal_badge: "Tempahan Selamat",
             modal_title: "Tempahan Dalam Talian Selamat",
             modal_subtitle: "Lengkapkan maklumat perjalanan anda di bawah dan teruskan ke checkout BayarCash.",
@@ -384,9 +414,9 @@
         defaultLanguage: "ms",
         translations,
         desktopToggleId: "lang-toggle",
-        mobileToggleId: "lang-toggle-mobile",
         htmlKeys: ["modal_terms_agreement_html"],
         onUpdate: () => {
+            setupPageMode();
             renderFleet();
             populateTimeDropdowns();
             updateDistanceFeedback();
@@ -2031,7 +2061,32 @@
         });
     }
 
+    function setupPageMode() {
+        const normalizedPath = window.location.pathname.replace(/\/+$/, "") || "/";
+        const isFleetPage = normalizedPath === "/fleet" || normalizedPath.endsWith("/fleet.html");
+
+        if (!isFleetPage) {
+            return;
+        }
+
+        document.title = `${t("nav_fleet")} - Afwaja Car Rental`;
+        document.querySelectorAll('a[href="fleet.html"]').forEach((link) => {
+            link.classList.remove("text-slate-600", "hover:text-afwaja-teal", "font-medium");
+            link.classList.add("text-afwaja-teal", "font-semibold");
+        });
+        document.querySelectorAll("[data-home-only]").forEach((section) => {
+            section.classList.add("hidden");
+        });
+
+        const fleetSection = document.getElementById("fleet");
+        if (fleetSection) {
+            fleetSection.classList.remove("py-20");
+            fleetSection.classList.add("pt-32", "pb-20", "md:pt-40");
+        }
+    }
+
     setCurrentYear();
+    setupPageMode();
     renderFleet();
     populateTimeDropdowns();
     resetDeliveryQuote("idle");
