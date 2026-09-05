@@ -50,6 +50,7 @@
         en: {
             nav_home: "Home", nav_about: "About Us", nav_fleet: "Cars",
             nav_services: "Services", nav_testimonials: "Testimonials", nav_terms: "Terms", nav_contact: "Contact",
+            seo_title_fleet: "Car Rental Fleet in Cyberjaya & KLIA | Afwaja Car Rental",
             hero_badge: "Premium Car Rental",
             hero_title1: "Travel in Comfort and Style with",
             hero_subtitle: "Premium, reliable, and affordable car rentals for your every journey. Experience smooth rides and hassle-free booking today.",
@@ -194,6 +195,7 @@
         ms: {
             nav_home: "Utama", nav_about: "Tentang Kami", nav_fleet: "Kereta",
             nav_services: "Servis", nav_testimonials: "Testimoni", nav_terms: "Terma", nav_contact: "Hubungi",
+            seo_title_fleet: "Senarai Kereta Sewa Cyberjaya & KLIA | Afwaja Car Rental",
             hero_badge: "Sewa Kereta Premium",
             hero_title1: "Nikmati Perjalanan yang Selesa dan Bergaya bersama",
             hero_subtitle: "Sewa kereta premium, diyakini, dan mampu milik untuk setiap perjalanan anda. Alami pemanduan lancar dan tempahan mudah hari ini.",
@@ -2069,7 +2071,7 @@
             return;
         }
 
-        document.title = `${t("nav_fleet")} - Afwaja Car Rental`;
+        document.title = t("seo_title_fleet");
         document.querySelectorAll('a[href="fleet.html"]').forEach((link) => {
             link.classList.remove("text-slate-600", "hover:text-afwaja-teal", "font-medium");
             link.classList.add("text-afwaja-teal", "font-semibold");
