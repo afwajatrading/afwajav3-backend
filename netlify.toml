@@ -52,6 +52,16 @@
   status = 200
 
 [[redirects]]
+  from = "/info-tips"
+  to = "/panduan.html"
+  status = 200
+
+[[redirects]]
+  from = "/panduan"
+  to = "/info-tips"
+  status = 301
+
+[[redirects]]
   from = "/fleet"
   to = "/fleet.html"
   status = 200
