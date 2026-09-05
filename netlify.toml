@@ -55,3 +55,18 @@
   from = "/driver-transfer"
   to = "/driver-transfer.html"
   status = 200
+
+[[redirects]]
+  from = "/kereta-sewa-cyberjaya"
+  to = "/kereta-sewa-cyberjaya.html"
+  status = 200
+
+[[redirects]]
+  from = "/kereta-sewa-klia"
+  to = "/kereta-sewa-klia.html"
+  status = 200
+
+[[redirects]]
+  from = "/kereta-sewa-putrajaya"
+  to = "/kereta-sewa-putrajaya.html"
+  status = 200

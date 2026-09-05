@@ -36,6 +36,9 @@ function resolveFilePath(requestUrl) {
         "/contact": "/contact.html",
         "/fleet": "/fleet.html",
         "/driver-transfer": "/driver-transfer.html",
+        "/kereta-sewa-cyberjaya": "/kereta-sewa-cyberjaya.html",
+        "/kereta-sewa-klia": "/kereta-sewa-klia.html",
+        "/kereta-sewa-putrajaya": "/kereta-sewa-putrajaya.html",
     };
     const requestedPath = routeFiles[decodedPath] || (decodedPath === "/" ? "/index.html" : decodedPath);
     const normalizedPath = path.normalize(requestedPath).replace(/^(\.\.[/\\])+/, "");
