@@ -60,6 +60,7 @@
   from = "/panduan"
   to = "/info-tips"
   status = 301
+  force = true
 
 [[redirects]]
   from = "/fleet"
