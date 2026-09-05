@@ -8,6 +8,69 @@
     background: linear-gradient(135deg, #22d3ee 0%, #0d9488 100%);
 }
 
+/* Fallbacks for Afwaja brand utilities in case Tailwind CDN config is delayed. */
+.bg-afwaja-navy {
+    background-color: #1f2d3d;
+}
+
+.bg-afwaja-teal {
+    background-color: #0d9488;
+}
+
+.bg-afwaja-cyan {
+    background-color: #22d3ee;
+}
+
+.text-afwaja-navy {
+    color: #1f2d3d;
+}
+
+.text-afwaja-teal {
+    color: #0d9488;
+}
+
+.text-afwaja-cyan {
+    color: #22d3ee;
+}
+
+.border-afwaja-teal {
+    border-color: #0d9488;
+}
+
+.hover\:bg-afwaja-navy:hover {
+    background-color: #1f2d3d;
+}
+
+.hover\:bg-afwaja-teal:hover {
+    background-color: #0d9488;
+}
+
+.hover\:text-afwaja-navy:hover {
+    color: #1f2d3d;
+}
+
+.hover\:text-afwaja-teal:hover {
+    color: #0d9488;
+}
+
+.hover\:text-afwaja-cyan:hover {
+    color: #22d3ee;
+}
+
+.hover\:border-afwaja-teal:hover {
+    border-color: #0d9488;
+}
+
+.from-afwaja-navy {
+    --tw-gradient-from: #1f2d3d var(--tw-gradient-from-position);
+    --tw-gradient-to: rgb(31 45 61 / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+.to-afwaja-teal {
+    --tw-gradient-to: #0d9488 var(--tw-gradient-to-position);
+}
+
 .hero-surface {
     background:
         radial-gradient(circle at top left, rgba(34, 211, 238, 0.3), transparent 32%),
