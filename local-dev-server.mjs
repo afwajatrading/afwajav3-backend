@@ -34,6 +34,7 @@ function resolveFilePath(requestUrl) {
         "/terms": "/terms.html",
         "/refund-policy": "/refund-policy.html",
         "/contact": "/contact.html",
+        "/faq": "/faq.html",
         "/fleet": "/fleet.html",
         "/driver-transfer": "/driver-transfer.html",
         "/kereta-sewa-cyberjaya": "/kereta-sewa-cyberjaya.html",
