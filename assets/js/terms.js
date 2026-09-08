@@ -104,6 +104,7 @@
             sec15_p1: "Afwaja Car Rental is not responsible for indirect losses such as loss of profit, missed appointments, travel schedules or other incidental costs, to the extent permitted by law.",
             sec15_p2: "Neither party is responsible for delay or failure caused by circumstances beyond reasonable control such as natural disasters, severe weather, government action, road closures, utility disruption, network disruption or major emergencies.",
             sec15_p3: "These Terms are governed by Malaysian law. Any dispute will be referred through the permitted channels in Malaysia, including the courts or relevant consumer tribunal where eligible.",
+            footer_price_reference: "Price Reference",
             footer_copy: "All Rights Reserved.",
         },
         ms: {
@@ -208,6 +209,7 @@
             sec15_p1: "Afwaja Car Rental tidak bertanggungjawab ke atas kerugian tidak langsung seperti kehilangan keuntungan, janji temu, jadual perjalanan atau kos sampingan lain, setakat yang dibenarkan oleh undang-undang.",
             sec15_p2: "Mana-mana pihak tidak bertanggungjawab atas kelewatan atau kegagalan yang berpunca daripada keadaan di luar kawalan munasabah seperti bencana alam, cuaca buruk, tindakan kerajaan, penutupan jalan, gangguan utiliti, gangguan rangkaian atau kecemasan besar.",
             sec15_p3: "Terma ini tertakluk kepada undang-undang Malaysia. Sebarang pertikaian akan dirujuk mengikut saluran yang dibenarkan di Malaysia, termasuk mahkamah atau tribunal pengguna yang berkaitan jika layak.",
+            footer_price_reference: "Rujukan Harga",
             footer_copy: "Hak Cipta Terpelihara.",
         },
     };

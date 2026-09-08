@@ -37,6 +37,7 @@ function resolveFilePath(requestUrl) {
         "/faq": "/faq.html",
         "/info-tips": "/panduan.html",
         "/panduan": "/panduan.html",
+        "/price-reference": "/price-reference.html",
         "/fleet": "/fleet.html",
         "/driver-transfer": "/driver-transfer.html",
         "/kereta-sewa-cyberjaya": "/kereta-sewa-cyberjaya.html",
