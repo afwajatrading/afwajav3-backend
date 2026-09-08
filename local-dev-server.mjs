@@ -44,7 +44,10 @@ function resolveFilePath(requestUrl) {
         "/kereta-sewa-klia": "/kereta-sewa-klia.html",
         "/kereta-sewa-putrajaya": "/kereta-sewa-putrajaya.html",
     };
-    const requestedPath = routeFiles[decodedPath] || (decodedPath === "/" ? "/index.html" : decodedPath);
+    const requestedPath = routeFiles[decodedPath]
+        || (decodedPath.startsWith("/info-tips/page/") ? "/panduan.html" : null)
+        || (decodedPath.startsWith("/info-tips/") ? "/info-tips-article.html" : null)
+        || (decodedPath === "/" ? "/index.html" : decodedPath);
     const normalizedPath = path.normalize(requestedPath).replace(/^(\.\.[/\\])+/, "");
     const filePath = path.join(rootDir, normalizedPath);
 

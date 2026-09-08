@@ -62,6 +62,16 @@
   status = 200
 
 [[redirects]]
+  from = "/info-tips/page/:page"
+  to = "/panduan.html"
+  status = 200
+
+[[redirects]]
+  from = "/info-tips/:slug"
+  to = "/info-tips-article.html"
+  status = 200
+
+[[redirects]]
   from = "/panduan"
   to = "/info-tips"
   status = 301
