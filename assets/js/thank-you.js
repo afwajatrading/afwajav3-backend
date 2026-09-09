@@ -306,6 +306,20 @@
                 );
             }
 
+            if (state === "success" && result.verified !== false) {
+                const conversionKey = `afwaja-purchase-${result.transactionId || verifyParams.get("transaction_id") || result.orderNumber || orderNumberValue}`;
+                if (!window.sessionStorage.getItem(conversionKey)) {
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({
+                        event: "purchase",
+                        transaction_id: result.transactionId || verifyParams.get("transaction_id") || "",
+                        value: Number(result.amount || verifyParams.get("amount") || 0),
+                        currency: result.currency || verifyParams.get("currency") || "MYR",
+                    });
+                    window.sessionStorage.setItem(conversionKey, "1");
+                }
+            }
+
             renderStatus(state, result);
             removePendingBookingSnapshot(orderNumberValue);
         } catch (error) {
