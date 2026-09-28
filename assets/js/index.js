@@ -401,6 +401,9 @@
     const bookingBankName = document.getElementById("booking-bank-name");
     const bookingBankAccountName = document.getElementById("booking-bank-account-name");
     const bookingBankAccountNumber = document.getElementById("booking-bank-account-number");
+    const bookingCouponCode = document.getElementById("booking-coupon-code");
+    const bookingCouponApply = document.getElementById("booking-coupon-apply");
+    const bookingCouponFeedback = document.getElementById("booking-coupon-feedback");
     const bookingTermsAgreement = document.getElementById("booking-terms-agreement");
     const bookingSubmitButton = document.getElementById("booking-submit-button");
     const bookingSubmitText = document.getElementById("booking-submit-text");
@@ -1737,6 +1740,7 @@
             bankName: bookingBankName?.value.trim() || "",
             bankAccountName: bookingBankAccountName?.value.trim() || "",
             bankAccountNumber: bookingBankAccountNumber?.value.trim() || "",
+            couponCode: bookingCouponCode?.value.trim() || "",
             termsAgreement: Boolean(bookingTermsAgreement?.checked),
         };
         const rentalPricing = calculateRentalPricing(
@@ -1918,6 +1922,40 @@
         });
 
         document.getElementById("booking-modal-close")?.addEventListener("click", closeBookingModal);
+        bookingCouponApply?.addEventListener("click", async () => {
+            const couponCode = bookingCouponCode?.value.trim() || "";
+            if (!couponCode || !selectedCar || !bookingPhone?.value.trim()) {
+                if (bookingCouponFeedback) {
+                    bookingCouponFeedback.textContent = "Enter the coupon code and your phone number first.";
+                    bookingCouponFeedback.className = "mt-3 text-sm font-medium text-rose-600";
+                }
+                return;
+            }
+            bookingCouponApply.disabled = true;
+            bookingCouponApply.textContent = "Checking...";
+            try {
+                const response = await fetch(buildApiUrl("/api/coupons/preview"), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ couponCode, carName: selectedCar.name, customerPhone: bookingPhone.value.trim() }),
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(result.error || "Coupon could not be applied.");
+                bookingCouponCode.value = result.code;
+                if (bookingCouponFeedback) {
+                    bookingCouponFeedback.textContent = `Coupon applied: RM${Number(result.discountAmount).toFixed(2)} discount. Final amount will be confirmed before Fiuu payment.`;
+                    bookingCouponFeedback.className = "mt-3 text-sm font-medium text-emerald-700";
+                }
+            } catch (error) {
+                if (bookingCouponFeedback) {
+                    bookingCouponFeedback.textContent = error.message;
+                    bookingCouponFeedback.className = "mt-3 text-sm font-medium text-rose-600";
+                }
+            } finally {
+                bookingCouponApply.disabled = false;
+                bookingCouponApply.textContent = "Apply";
+            }
+        });
         bookingPickupDate?.addEventListener("input", () => {
             const pickupDate = parseDateInput(bookingPickupDate.value);
             const returnDate = parseDateInput(bookingReturnDate?.value || "");

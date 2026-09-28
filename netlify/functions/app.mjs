@@ -58,6 +58,7 @@ loadEnvFile(path.join(rootDir, ".env"));
 const testCheckoutConfig = getTestCheckoutConfig();
 const carCatalog = createCarCatalog();
 const paymentStore = createPaymentStore();
+const couponStore = createCouponStore();
 
 export const config = {
     path: ["/api/*", "/dev/email-preview"],
@@ -114,6 +115,42 @@ function createPaymentStore() {
             const records = readAll();
             records[key] = value;
             writeAll(records);
+        },
+    };
+}
+
+function createCouponStore() {
+    const hasNetlifyBlobsEnv = Boolean(
+        trimValue(process.env.NETLIFY_BLOBS_CONTEXT) || trimValue(process.env.NETLIFY) || trimValue(process.env.CONTEXT) || trimValue(process.env.SITE_ID)
+    );
+
+    if (hasNetlifyBlobsEnv) {
+        return getStore({ name: "discount-coupons", consistency: "strong" });
+    }
+
+    const localStoreDir = path.join(rootDir, ".tmp");
+    const localStoreFile = path.join(localStoreDir, "discount-coupons.json");
+    const readAll = () => {
+        try { return fs.existsSync(localStoreFile) ? JSON.parse(fs.readFileSync(localStoreFile, "utf8")) : {}; } catch { return {}; }
+    };
+    const writeAll = (payload) => {
+        fs.mkdirSync(localStoreDir, { recursive: true });
+        fs.writeFileSync(localStoreFile, JSON.stringify(payload, null, 2), "utf8");
+    };
+
+    return {
+        async get(key, options = {}) {
+            const value = readAll()[key];
+            if (value === undefined) return null;
+            return options.type === "json" ? value : JSON.stringify(value);
+        },
+        async setJSON(key, value) {
+            const records = readAll();
+            records[key] = value;
+            writeAll(records);
+        },
+        async list({ prefix = "" } = {}) {
+            return { blobs: Object.keys(readAll()).filter((key) => key.startsWith(prefix)).map((key) => ({ key })) };
         },
     };
 }
@@ -1002,6 +1039,99 @@ async function savePaymentRecord(record) {
     await paymentStore.setJSON("__latest", record);
 }
 
+function getCouponKey(code) {
+    return `coupons/${trimValue(code).toUpperCase()}`;
+}
+
+function normalizeCouponCode(value) {
+    return trimValue(value).toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 32);
+}
+
+function getAdminCouponConfig() {
+    return {
+        password: trimValue(process.env.ADMIN_COUPON_PASSWORD),
+        sessionSecret: trimValue(process.env.ADMIN_SESSION_SECRET),
+    };
+}
+
+function hasCouponAdminConfig(config = getAdminCouponConfig()) {
+    return Boolean(config.password && config.sessionSecret);
+}
+
+function safeEqual(left, right) {
+    const leftBuffer = Buffer.from(`${left}`);
+    const rightBuffer = Buffer.from(`${right}`);
+    return leftBuffer.length === rightBuffer.length && crypto.timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+function readCookie(request, name) {
+    const cookie = request.headers.get("cookie") || "";
+    return cookie.split(";").map((item) => item.trim()).find((item) => item.startsWith(`${name}=`))?.slice(name.length + 1) || "";
+}
+
+function createAdminSession(secret) {
+    const payload = Buffer.from(JSON.stringify({ exp: Date.now() + (12 * 60 * 60 * 1000) })).toString("base64url");
+    const signature = crypto.createHmac("sha256", secret).update(payload).digest("base64url");
+    return `${payload}.${signature}`;
+}
+
+function isCouponAdmin(request) {
+    const config = getAdminCouponConfig();
+    const token = readCookie(request, "afwaja_coupon_admin");
+    const [payload, signature] = token.split(".");
+    if (!hasCouponAdminConfig(config) || !payload || !signature) return false;
+    const expected = crypto.createHmac("sha256", config.sessionSecret).update(payload).digest("base64url");
+    if (!safeEqual(expected, signature)) return false;
+    try { return Number(JSON.parse(Buffer.from(payload, "base64url").toString("utf8")).exp) > Date.now(); } catch { return false; }
+}
+
+function adminCookie(value, maxAge = 0) {
+    return `afwaja_coupon_admin=${value}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}`;
+}
+
+async function readCoupon(code) {
+    const normalized = normalizeCouponCode(code);
+    if (!normalized) return null;
+    return couponStore.get(getCouponKey(normalized), { consistency: "strong", type: "json" }).catch(() => null);
+}
+
+async function saveCoupon(coupon) {
+    await couponStore.setJSON(getCouponKey(coupon.code), coupon);
+}
+
+function isCouponExpired(coupon) {
+    return !coupon?.expiresAt || new Date(coupon.expiresAt).getTime() <= Date.now();
+}
+
+function couponMatchesBooking(coupon, carName, customerPhone) {
+    return (!coupon.carName || coupon.carName === "Any car" || coupon.carName === carName)
+        && (!coupon.customerPhone || coupon.customerPhone === normalizePhoneNumber(customerPhone));
+}
+
+async function reserveCouponForBooking(code, { carName, customerPhone, orderNumber }) {
+    const coupon = await readCoupon(code);
+    if (!coupon || coupon.status === "used" || isCouponExpired(coupon) || !couponMatchesBooking(coupon, carName, customerPhone)) return null;
+    const reservationStillActive = coupon.status === "reserved" && new Date(coupon.reservedUntil || 0).getTime() > Date.now();
+    if (reservationStillActive && coupon.reservationOrderNumber !== orderNumber) return null;
+    const reservedCoupon = {
+        ...coupon,
+        status: "reserved",
+        reservationOrderNumber: orderNumber,
+        reservedUntil: new Date(Date.now() + (30 * 60 * 1000)).toISOString(),
+        updatedAt: new Date().toISOString(),
+    };
+    await saveCoupon(reservedCoupon);
+    return reservedCoupon;
+}
+
+async function markCouponUsed(record) {
+    const code = normalizeCouponCode(record?.couponCode);
+    if (!code) return;
+    const coupon = await readCoupon(code);
+    if (!coupon || (coupon.reservationOrderNumber && coupon.reservationOrderNumber !== record.orderNumber)) return;
+    await saveCoupon({ ...coupon, status: "used", usedAt: new Date().toISOString(), usedOrderNumber: record.orderNumber, usedTransactionId: record.transactionId, updatedAt: new Date().toISOString() });
+}
+
 function createEmailPreviewFallbackRecord() {
     return {
         orderNumber: "AFW-260512-8C5A",
@@ -1786,7 +1916,18 @@ async function handleCreatePaymentIntent(request) {
     }
 
     const calculatedTotal = rentalCharges + selectedCar.deposit + deliveryQuote.totalCharge;
-    const amount = formatAmount(getCheckoutTotalOverride(selectedCar.name) ?? calculatedTotal);
+    const couponCode = normalizeCouponCode(body.couponCode);
+    let coupon = null;
+    let couponDiscount = 0;
+    if (couponCode) {
+        coupon = await reserveCouponForBooking(couponCode, { carName: selectedCar.name, customerPhone, orderNumber });
+        if (!coupon) {
+            return jsonResponse(400, { error: "This discount coupon is invalid, expired, or has already been used." }, headers);
+        }
+        couponDiscount = Math.min(Number(coupon.discountAmount) || 0, calculatedTotal);
+    }
+    const payableTotal = Math.max(0.01, calculatedTotal - couponDiscount);
+    const amount = formatAmount(getCheckoutTotalOverride(selectedCar.name) ?? payableTotal);
     const localPaymentBypass = isLocalPaymentBypassEnabled(config);
     const paymentIntentPayload = {
         payment_channel: config.paymentChannel,
@@ -1826,6 +1967,8 @@ async function handleCreatePaymentIntent(request) {
             return_pickup_distance_km: deliveryQuote.collectionDistanceKm,
             return_pickup_charge: formatAmount(deliveryQuote.collectionCharge),
             total_transport_charge: formatAmount(deliveryQuote.totalCharge),
+            coupon_code: coupon?.code || "",
+            coupon_discount: formatAmount(couponDiscount),
             total_payable: amount,
             test_checkout_override: isTestCheckoutCar(selectedCar.name),
             refund_bank_name: bankName,
@@ -1866,6 +2009,9 @@ async function handleCreatePaymentIntent(request) {
         deliveryCharge: formatAmount(deliveryQuote.pickupCharge),
         returnPickupCharge: formatAmount(deliveryQuote.collectionCharge),
         refundableDeposit: formatAmount(selectedCar.deposit),
+        couponCode: coupon?.code || "",
+        couponDiscount: formatAmount(couponDiscount),
+        originalAmount: formatAmount(calculatedTotal),
         refundBankName: bankName,
         refundAccountName: bankAccountName,
         refundAccountNumber: bankAccountNumber,
@@ -2124,6 +2270,9 @@ async function processFiuuResponse(payload, config) {
     };
     const finalRecord = await maybeSendPaymentNotifications(record);
     await savePaymentRecord(finalRecord);
+    if (state === "success") {
+        await markCouponUsed(finalRecord);
+    }
     return { verified: true, state, orderNumber: finalRecord.orderNumber, transactionId: finalRecord.transactionId, status: finalRecord.status, statusDescription: finalRecord.statusDescription, amount: finalRecord.amount, currency: "MYR" };
 }
 
@@ -2159,6 +2308,79 @@ async function handleFiuuNotification(request) {
 async function handleFiuuVerifyReturn(request) {
     const result = await processFiuuResponse(await readFiuuPayload(request), getFiuuConfig());
     return jsonResponse(result.verified ? 200 : 400, result, buildCorsHeaders(request));
+}
+
+async function handleCouponAdminLogin(request) {
+    const config = getAdminCouponConfig();
+    if (!hasCouponAdminConfig(config)) return jsonResponse(503, { error: "Coupon admin is not configured yet." });
+    const body = await parseRequestBody(request).catch(() => null);
+    if (!body || !safeEqual(trimValue(body.password), config.password)) return jsonResponse(401, { error: "Incorrect password." });
+    return jsonResponse(200, { authenticated: true }, { "Set-Cookie": adminCookie(createAdminSession(config.sessionSecret), 43200) });
+}
+
+async function requireCouponAdmin(request) {
+    return isCouponAdmin(request) ? null : jsonResponse(401, { error: "Admin login required." });
+}
+
+async function handleCouponAdminList(request) {
+    const denied = await requireCouponAdmin(request);
+    if (denied) return denied;
+    const listed = await couponStore.list({ prefix: "coupons/" });
+    const coupons = (await Promise.all((listed.blobs || []).map((blob) => couponStore.get(blob.key, { type: "json" }).catch(() => null))))
+        .filter(Boolean)
+        .sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt));
+    return jsonResponse(200, { coupons });
+}
+
+async function handleCouponAdminCreate(request) {
+    const denied = await requireCouponAdmin(request);
+    if (denied) return denied;
+    const body = await parseRequestBody(request).catch(() => null);
+    const customerName = trimValue(body?.customerName);
+    const customerPhone = normalizePhoneNumber(body?.phone);
+    const carName = trimValue(body?.car);
+    const expiresAt = trimValue(body?.expiresAt);
+    const originalPrice = Number(body?.originalPrice) || 0;
+    const dealPrice = Number(body?.dealPrice) || 0;
+    const discountAmount = Number(body?.discountAmount) || (originalPrice > dealPrice ? originalPrice - dealPrice : 0);
+    if (!customerName || !customerPhone || !carName || !expiresAt || !Number.isFinite(discountAmount) || discountAmount <= 0 || new Date(expiresAt).getTime() <= Date.now()) {
+        return jsonResponse(400, { error: "Complete the customer, car, discount amount, and future expiry date." });
+    }
+    let code;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+        code = `AFW-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
+        if (!await readCoupon(code)) break;
+        code = "";
+    }
+    if (!code) return jsonResponse(503, { error: "Could not generate a unique coupon. Please try again." });
+    const coupon = {
+        code,
+        customerName,
+        customerPhone,
+        carName,
+        originalPrice: formatAmount(originalPrice),
+        dealPrice: formatAmount(dealPrice),
+        discountAmount: formatAmount(discountAmount),
+        expiresAt: new Date(expiresAt).toISOString(),
+        status: "active",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    };
+    await saveCoupon(coupon);
+    return jsonResponse(201, { coupon });
+}
+
+async function handleCouponAdminLogout(request) {
+    return jsonResponse(200, { authenticated: false }, { "Set-Cookie": adminCookie("", 0) });
+}
+
+async function handleCouponPreview(request) {
+    const body = await parseRequestBody(request).catch(() => null);
+    const coupon = await readCoupon(body?.couponCode);
+    if (!coupon || coupon.status === "used" || isCouponExpired(coupon) || !couponMatchesBooking(coupon, trimValue(body?.carName), body?.customerPhone)) {
+        return jsonResponse(400, { error: "Coupon tidak sah, tamat tempoh, atau tidak sesuai untuk tempahan ini." }, buildCorsHeaders(request));
+    }
+    return jsonResponse(200, { code: coupon.code, discountAmount: coupon.discountAmount, expiresAt: coupon.expiresAt }, buildCorsHeaders(request));
 }
 
 async function handleCallback(request) {
@@ -2349,6 +2571,11 @@ export default async function handler(request) {
     }
 
     if (request.method === "POST" && pathname === "/api/fiuu/payment-intents") return handleCreatePaymentIntent(request);
+    if (request.method === "POST" && pathname === "/api/coupons/preview") return handleCouponPreview(request);
+    if (request.method === "POST" && pathname === "/api/admin/coupons/login") return handleCouponAdminLogin(request);
+    if (request.method === "POST" && pathname === "/api/admin/coupons/logout") return handleCouponAdminLogout(request);
+    if (request.method === "GET" && pathname === "/api/admin/coupons") return handleCouponAdminList(request);
+    if (request.method === "POST" && pathname === "/api/admin/coupons") return handleCouponAdminCreate(request);
     if ((request.method === "GET" || request.method === "POST") && pathname === "/api/fiuu/return") return handleFiuuReturn(request);
     if ((request.method === "GET" || request.method === "POST") && (pathname === "/api/fiuu/notify" || pathname === "/api/fiuu/callback")) return handleFiuuNotification(request);
     if (request.method === "GET" && pathname === "/api/fiuu/verify-return") return handleFiuuVerifyReturn(request);
