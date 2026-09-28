@@ -1917,6 +1917,11 @@
             return;
         }
 
+        const couponPanel = bookingCouponCode?.closest(".rounded-3xl");
+        if (couponPanel && bookingFormError) {
+            bookingFormError.before(couponPanel);
+        }
+
         bookingModal.querySelectorAll("[data-booking-close]").forEach((element) => {
             element.addEventListener("click", closeBookingModal);
         });
