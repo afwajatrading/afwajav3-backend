@@ -54,8 +54,7 @@
     form.addEventListener("input", () => {
         const originalAmount = Number(form.elements.originalPrice.value);
         const discountAmount = Number(form.elements.discountAmount.value);
-        const dealAmount = Number(form.elements.dealPrice.value);
-        if (originalAmount && discountAmount && !dealAmount) form.elements.dealPrice.value = Math.max(0, originalAmount - discountAmount).toFixed(2);
+        if (originalAmount && Number.isFinite(discountAmount)) form.elements.dealPrice.value = Math.max(0, originalAmount - discountAmount).toFixed(2);
         original.textContent = formatMoney(form.elements.originalPrice.value);
         discount.textContent = formatMoney(form.elements.discountAmount.value);
         deal.textContent = formatMoney(form.elements.dealPrice.value);

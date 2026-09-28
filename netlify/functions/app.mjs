@@ -2347,9 +2347,10 @@ async function handleCouponAdminCreate(request) {
     const carName = trimValue(body?.car);
     const expiresAt = trimValue(body?.expiresAt);
     const originalPrice = Number(body?.originalPrice) || 0;
-    const dealPrice = Number(body?.dealPrice) || 0;
-    const discountAmount = Number(body?.discountAmount) || (originalPrice > dealPrice ? originalPrice - dealPrice : 0);
-    if (!customerName || !customerPhone || !carName || !expiresAt || !Number.isFinite(discountAmount) || discountAmount <= 0 || new Date(expiresAt).getTime() <= Date.now()) {
+    const requestedDealPrice = Number(body?.dealPrice) || 0;
+    const discountAmount = Number(body?.discountAmount) || (originalPrice > requestedDealPrice ? originalPrice - requestedDealPrice : 0);
+    const dealPrice = originalPrice > 0 ? originalPrice - discountAmount : 0;
+    if (!customerName || !customerPhone || !carName || !expiresAt || !Number.isFinite(discountAmount) || discountAmount <= 0 || (originalPrice > 0 && discountAmount > originalPrice) || new Date(expiresAt).getTime() <= Date.now()) {
         return jsonResponse(400, { error: "Complete the customer, car, discount amount, and future expiry date." });
     }
     let code;
