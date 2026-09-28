@@ -1049,9 +1049,15 @@ function normalizeCouponCode(value) {
 
 function getAdminCouponConfig() {
     return {
-        password: trimValue(process.env.ADMIN_COUPON_PASSWORD),
+        password: normalizeAdminSecret(process.env.ADMIN_COUPON_PASSWORD, "ADMIN_COUPON_PASSWORD"),
         sessionSecret: trimValue(process.env.ADMIN_SESSION_SECRET),
     };
+}
+
+function normalizeAdminSecret(value, variableName) {
+    const normalized = trimValue(value).replace(/^['"]|['"]$/g, "");
+    const assignmentPrefix = `${variableName}=`;
+    return normalized.startsWith(assignmentPrefix) ? normalized.slice(assignmentPrefix.length).trim() : normalized;
 }
 
 function hasCouponAdminConfig(config = getAdminCouponConfig()) {
