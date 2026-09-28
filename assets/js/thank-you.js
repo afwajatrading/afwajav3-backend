@@ -41,10 +41,10 @@
             nav_back: "Back to Home",
             hero_badge: "Payment Update",
             hero_title: "Thank You",
-            hero_desc: "We are checking your BayarCash payment status now. Please wait a moment.",
+            hero_desc: "We are checking your Fiuu payment status now. Please wait a moment.",
             status_label: "Payment Status",
             status_checking: "Checking payment status...",
-            status_loading: "We are verifying your latest transaction details with BayarCash.",
+            status_loading: "We are verifying your latest transaction details with Fiuu.",
             payment_update_title: "Payment Update",
             payment_status_success_title: "Payment Successful",
             payment_status_pending_title: "Payment Pending",
@@ -56,7 +56,7 @@
             payment_status_failed: "Payment was not completed. You can try again whenever you are ready.",
             payment_status_cancelled: "Payment was cancelled before completion.",
             payment_status_unknown: "We received your payment return, but the status could not be verified yet.",
-            payment_status_invalid: "We could not verify the BayarCash return checksum. Please contact our team if money has been deducted.",
+            payment_status_invalid: "We could not verify the Fiuu payment response. Please contact our team if money has been deducted.",
             order_label: "Order",
             transaction_label: "Transaction",
             try_payment_again: "Try Payment Again",
@@ -74,10 +74,10 @@
             nav_back: "Kembali ke Laman Utama",
             hero_badge: "Kemaskini Bayaran",
             hero_title: "Terima Kasih",
-            hero_desc: "Kami sedang menyemak status bayaran BayarCash anda. Sila tunggu sebentar.",
+            hero_desc: "Kami sedang menyemak status bayaran Fiuu anda. Sila tunggu sebentar.",
             status_label: "Status Bayaran",
             status_checking: "Sedang menyemak status bayaran...",
-            status_loading: "Kami sedang mengesahkan butiran transaksi terkini anda dengan BayarCash.",
+            status_loading: "Kami sedang mengesahkan butiran transaksi terkini anda dengan Fiuu.",
             payment_update_title: "Kemaskini Bayaran",
             payment_status_success_title: "Bayaran Berjaya",
             payment_status_pending_title: "Bayaran Sedang Diproses",
@@ -89,7 +89,7 @@
             payment_status_failed: "Bayaran belum berjaya diselesaikan. Anda boleh cuba semula bila bersedia.",
             payment_status_cancelled: "Bayaran telah dibatalkan sebelum selesai.",
             payment_status_unknown: "Kami menerima pulangan bayaran anda, tetapi statusnya belum dapat disahkan lagi.",
-            payment_status_invalid: "Pulangan BayarCash tidak dapat disahkan. Hubungi pasukan kami jika wang telah ditolak.",
+            payment_status_invalid: "Respons bayaran Fiuu tidak dapat disahkan. Hubungi pasukan kami jika wang telah ditolak.",
             order_label: "No. Tempahan",
             transaction_label: "Transaksi",
             try_payment_again: "Cuba Bayar Semula",
@@ -185,35 +185,25 @@
     }
 
     async function finalizeBookingNotifications(orderNumberValue, transactionIdValue, bookingSnapshotValue) {
-        if (!orderNumberValue || !transactionIdValue || !bookingSnapshotValue) {
-            return;
-        }
-
-        await fetch(buildApiUrl("/api/bayarcash/finalize-booking"), {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                orderNumber: orderNumberValue,
-                transactionId: transactionIdValue,
-                bookingSnapshot: bookingSnapshotValue,
-            }),
-        }).catch(() => null);
+        // Fiuu notifications are finalized server-side after its signed response is verified.
+        // This function remains to keep the return-page flow compatible with saved bookings.
+        void orderNumberValue;
+        void transactionIdValue;
+        void bookingSnapshotValue;
     }
 
     function mapPaymentState(statusValue) {
         const normalized = `${statusValue ?? ""}`.toLowerCase();
 
-        if (normalized === "3" || normalized === "success" || normalized === "paid" || normalized === "approved") {
+        if (normalized === "00" || normalized === "3" || normalized === "success" || normalized === "paid" || normalized === "approved") {
             return "success";
         }
 
-        if (normalized === "1" || normalized === "pending") {
+        if (normalized === "22" || normalized === "1" || normalized === "pending") {
             return "pending";
         }
 
-        if (normalized === "2" || normalized === "failed" || normalized === "unsuccessful") {
+        if (normalized === "11" || normalized === "2" || normalized === "failed" || normalized === "unsuccessful") {
             return "failed";
         }
 
@@ -277,13 +267,18 @@
     async function handlePaymentReturn() {
         const url = new URL(window.location.href);
 
-        if (!url.searchParams.has("checksum") || !url.searchParams.has("transaction_id")) {
+        if (url.searchParams.has("payment_cancelled")) {
+            renderStatus("cancelled", { verified: true, orderNumber: url.searchParams.get("orderid") || "" });
+            return;
+        }
+
+        if (!url.searchParams.has("skey") || !url.searchParams.has("tranID")) {
             renderStatus("unknown", { verified: false });
             return;
         }
 
         const verifyParams = new URLSearchParams(url.searchParams);
-        const orderNumberValue = verifyParams.get("order_number") || "";
+        const orderNumberValue = verifyParams.get("orderid") || "";
         let bookingSnapshotValue = verifyParams.get("booking_snapshot") || "";
         if (!verifyParams.has("booking_snapshot")) {
             const pendingSnapshot = getPendingBookingSnapshot(orderNumberValue);
@@ -294,25 +289,25 @@
         }
 
         try {
-            const response = await fetch(buildApiUrl(`/api/bayarcash/verify-return?${verifyParams.toString()}`));
+            const response = await fetch(buildApiUrl(`/api/fiuu/verify-return?${verifyParams.toString()}`));
             const result = await response.json();
             const state = mapPaymentState(result.status);
 
             if (result.verified !== false) {
                 await finalizeBookingNotifications(
                     result.orderNumber || orderNumberValue,
-                    result.transactionId || verifyParams.get("transaction_id") || "",
+                    result.transactionId || verifyParams.get("tranID") || "",
                     bookingSnapshotValue
                 );
             }
 
             if (state === "success" && result.verified !== false) {
-                const conversionKey = `afwaja-purchase-${result.transactionId || verifyParams.get("transaction_id") || result.orderNumber || orderNumberValue}`;
+                const conversionKey = `afwaja-purchase-${result.transactionId || verifyParams.get("tranID") || result.orderNumber || orderNumberValue}`;
                 if (!window.sessionStorage.getItem(conversionKey)) {
                     window.dataLayer = window.dataLayer || [];
                     window.dataLayer.push({
                         event: "purchase",
-                        transaction_id: result.transactionId || verifyParams.get("transaction_id") || "",
+                        transaction_id: result.transactionId || verifyParams.get("tranID") || "",
                         value: Number(result.amount || verifyParams.get("amount") || 0),
                         currency: result.currency || verifyParams.get("currency") || "MYR",
                     });
@@ -327,22 +322,7 @@
         } finally {
             const cleanUrl = new URL(window.location.href);
             [
-                "payment_return",
-                "record_type",
-                "transaction_id",
-                "exchange_reference_number",
-                "exchange_transaction_id",
-                "order_number",
-                "currency",
-                "amount",
-                "payer_name",
-                "payer_email",
-                "payer_bank_name",
-                "status",
-                "status_description",
-                "datetime",
-                "booking_snapshot",
-                "checksum",
+                "orderid", "tranID", "statcode", "amount", "domain", "skey",
             ].forEach((key) => cleanUrl.searchParams.delete(key));
             window.history.replaceState({}, document.title, `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
         }

@@ -539,6 +539,52 @@ function isBayarcashConfigured(config) {
     return Boolean(config.portalKey && config.personalAccessToken && config.apiSecretKey && config.frontendBaseUrl);
 }
 
+function getFiuuConfig() {
+    const frontendBaseUrl = trimValue(process.env.FRONTEND_BASE_URL) || trimValue(process.env.APP_BASE_URL);
+    const apiPublicBaseUrl = trimValue(process.env.API_PUBLIC_BASE_URL) || frontendBaseUrl;
+    const environment = trimValue(process.env.FIUU_ENVIRONMENT || "sandbox").toLowerCase();
+    const merchantId = trimValue(process.env.FIUU_MERCHANT_ID);
+    const baseUrl = environment === "production"
+        ? "https://pay.fiuu.com/RMS/pay"
+        : "https://sandbox-payment.fiuu.com/RMS/pay";
+
+    return {
+        frontendBaseUrl,
+        apiPublicBaseUrl,
+        merchantId,
+        verifyKey: trimValue(process.env.FIUU_VERIFY_KEY),
+        secretKey: trimValue(process.env.FIUU_SECRET_KEY),
+        baseUrl,
+        returnUrl: `${apiPublicBaseUrl}/api/fiuu/return`,
+        notifyUrl: `${apiPublicBaseUrl}/api/fiuu/notify`,
+        callbackUrl: `${apiPublicBaseUrl}/api/fiuu/callback`,
+    };
+}
+
+function isFiuuConfigured(config) {
+    return Boolean(config.frontendBaseUrl && config.apiPublicBaseUrl && config.merchantId && config.verifyKey && config.secretKey);
+}
+
+function buildFiuuCheckoutUrl(record, config) {
+    const amount = formatAmount(record.amount);
+    const parameters = new URLSearchParams({
+        orderid: record.orderNumber,
+        amount,
+        bill_name: record.customerName,
+        bill_email: record.customerEmail,
+        bill_mobile: record.customerPhone,
+        bill_desc: `Afwaja Car Rental booking ${record.orderNumber}`,
+        currency: "MYR",
+        returnurl: config.returnUrl,
+        notifyurl: config.notifyUrl,
+        callbackurl: config.callbackUrl,
+        cancelurl: `${config.frontendBaseUrl}/thank-you.html?payment_cancelled=1&orderid=${encodeURIComponent(record.orderNumber)}`,
+        vcode: crypto.createHash("md5").update(`${amount}${config.merchantId}${record.orderNumber}${config.verifyKey}`).digest("hex"),
+    });
+
+    return `${config.baseUrl}/${encodeURIComponent(config.merchantId)}?${parameters.toString()}`;
+}
+
 function isLocalPaymentBypassEnabled(config) {
     const bypassEnabled = parseBooleanEnv(process.env.BAYARCASH_LOCAL_BYPASS, false);
     const isLocalUrl = /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])/i.test(config.frontendBaseUrl || "");
@@ -1641,12 +1687,12 @@ async function handleDeliveryQuote(request) {
 
 async function handleCreatePaymentIntent(request) {
     const headers = buildCorsHeaders(request);
-    const config = getBayarcashConfig();
+    const config = getFiuuConfig();
     const mapsConfig = getMapsConfig();
 
-    if (!isBayarcashConfigured(config)) {
+    if (!isFiuuConfigured(config)) {
         return jsonResponse(503, {
-            error: "BayarCash is not configured yet. Fill in BAYARCASH_PORTAL_KEY, BAYARCASH_PAT and BAYARCASH_API_SECRET_KEY in your environment variables.",
+            error: "Fiuu is not configured yet. Fill in FIUU_MERCHANT_ID, FIUU_VERIFY_KEY and FIUU_SECRET_KEY in your environment variables.",
         }, headers);
     }
 
@@ -1702,7 +1748,7 @@ async function handleCreatePaymentIntent(request) {
     }
 
     if (!termsAgreement) {
-        return jsonResponse(400, { error: "Please agree to the Terms & Conditions before continuing to BayarCash." }, headers);
+        return jsonResponse(400, { error: "Please agree to the Terms & Conditions before continuing to Fiuu." }, headers);
     }
 
     const selectedCar = carCatalog.get(carName);
@@ -1826,6 +1872,26 @@ async function handleCreatePaymentIntent(request) {
         deliveryQuote,
     };
 
+    const checkoutUrl = buildFiuuCheckoutUrl(baseRecord, config);
+    await savePaymentRecord({
+        ...baseRecord,
+        checkoutUrl,
+        status: "created",
+        state: "pending",
+        verified: false,
+        notificationEmailSent: false,
+        notificationEmailState: "",
+    });
+
+    return jsonResponse(200, {
+        checkoutUrl,
+        orderNumber,
+        amount,
+        rentalDays,
+        rentalPricing,
+        deliveryQuote,
+    }, headers);
+
     const bookingSnapshot = encodeBookingSnapshot(baseRecord);
 
     if (bookingSnapshot) {
@@ -1945,6 +2011,80 @@ async function handleVerifyReturn(request) {
     }
 
     return jsonResponse(verified ? 200 : 400, normalizedPayload, headers);
+}
+
+function getFiuuPaymentState(statCode) {
+    const normalized = trimValue(statCode);
+    if (normalized === "00") return "success";
+    if (normalized === "22") return "pending";
+    if (normalized === "11") return "failed";
+    return "unknown";
+}
+
+function verifyFiuuResponse(payload, config) {
+    const amount = trimValue(payload.amount || payload.Amount);
+    const domain = trimValue(payload.domain || payload.Domain);
+    const transactionId = trimValue(payload.tranID || payload.TranID);
+    const statCode = trimValue(payload.statcode || payload.StatCode);
+    const receivedSignature = trimValue(payload.skey || payload.Skey).toLowerCase();
+
+    if (!amount || !domain || !transactionId || !statCode || !receivedSignature || domain !== config.merchantId) return false;
+
+    const expectedSignature = crypto.createHash("md5")
+        .update(`${amount}${config.secretKey}${domain}${transactionId}${statCode}`)
+        .digest("hex");
+    return crypto.timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(receivedSignature));
+}
+
+async function processFiuuResponse(payload, config) {
+    const orderNumber = trimValue(payload.orderid || payload.OrderID);
+    const existingRecord = await readPaymentRecord(orderNumber);
+    const verified = verifyFiuuResponse(payload, config);
+    const amount = formatAmount(payload.amount || payload.Amount || existingRecord?.amount || 0);
+    const recordAmount = formatAmount(existingRecord?.amount || amount);
+    const state = getFiuuPaymentState(payload.statcode || payload.StatCode);
+
+    if (!existingRecord || !verified || amount !== recordAmount) {
+        return { verified: false, state: "unknown", orderNumber, transactionId: trimValue(payload.tranID || payload.TranID), amount };
+    }
+
+    const record = {
+        ...existingRecord,
+        transactionId: trimValue(payload.tranID || payload.TranID),
+        status: trimValue(payload.statcode || payload.StatCode),
+        statusDescription: trimValue(payload.error_desc || payload.ErrorDesc || payload.status_desc || payload.StatusDesc),
+        payerBankName: trimValue(payload.channel || payload.Channel),
+        amount,
+        state,
+        verified: true,
+    };
+    const finalRecord = await maybeSendPaymentNotifications(record);
+    await savePaymentRecord(finalRecord);
+    return { verified: true, state, orderNumber: finalRecord.orderNumber, transactionId: finalRecord.transactionId, status: finalRecord.status, statusDescription: finalRecord.statusDescription, amount: finalRecord.amount, currency: "MYR" };
+}
+
+async function readFiuuPayload(request) {
+    const queryPayload = Object.fromEntries(new URL(request.url).searchParams.entries());
+    return request.method === "GET" ? queryPayload : { ...queryPayload, ...(await parseRequestBody(request)) };
+}
+
+async function handleFiuuReturn(request) {
+    const config = getFiuuConfig();
+    const payload = await readFiuuPayload(request);
+    const result = await processFiuuResponse(payload, config);
+    const redirectUrl = new URL(`${config.frontendBaseUrl}/thank-you.html`);
+    [["orderid", result.orderNumber], ["tranID", result.transactionId], ["statcode", payload.statcode || payload.StatCode], ["amount", result.amount], ["domain", payload.domain || payload.Domain], ["skey", payload.skey || payload.Skey]].forEach(([key, value]) => redirectUrl.searchParams.set(key, value || ""));
+    return new Response(null, { status: 303, headers: { Location: redirectUrl.toString() } });
+}
+
+async function handleFiuuNotification(request) {
+    const result = await processFiuuResponse(await readFiuuPayload(request), getFiuuConfig());
+    return textResponse(result.verified ? 200 : 400, result.verified ? "OK" : "INVALID");
+}
+
+async function handleFiuuVerifyReturn(request) {
+    const result = await processFiuuResponse(await readFiuuPayload(request), getFiuuConfig());
+    return jsonResponse(result.verified ? 200 : 400, result, buildCorsHeaders(request));
 }
 
 async function handleCallback(request) {
@@ -2133,6 +2273,11 @@ export default async function handler(request) {
     if (request.method === "POST" && pathname === "/api/bayarcash/payment-intents") {
         return handleCreatePaymentIntent(request);
     }
+
+    if (request.method === "POST" && pathname === "/api/fiuu/payment-intents") return handleCreatePaymentIntent(request);
+    if ((request.method === "GET" || request.method === "POST") && pathname === "/api/fiuu/return") return handleFiuuReturn(request);
+    if ((request.method === "GET" || request.method === "POST") && (pathname === "/api/fiuu/notify" || pathname === "/api/fiuu/callback")) return handleFiuuNotification(request);
+    if (request.method === "GET" && pathname === "/api/fiuu/verify-return") return handleFiuuVerifyReturn(request);
 
     if (request.method === "GET" && pathname === "/api/bayarcash/verify-return") {
         return handleVerifyReturn(request);
