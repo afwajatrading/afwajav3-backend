@@ -5,6 +5,11 @@
   directory = "netlify/functions"
 
 [[redirects]]
+  from = "/admin/coupons"
+  to = "/admin-coupons.html"
+  status = 200
+
+[[redirects]]
   from = "https://afwajarental.com/*"
   to = "https://www.afwajarental.my/:splat"
   status = 301
