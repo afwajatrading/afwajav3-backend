@@ -15,6 +15,7 @@
     function showDashboard() {
         login.classList.add("hidden");
         dashboard.classList.remove("hidden");
+        dashboard.classList.add("grid");
         loadCoupons();
     }
 
@@ -33,7 +34,7 @@
 
     async function loadCoupons() {
         const response = await fetch("/api/admin/coupons");
-        if (response.status === 401) { login.classList.remove("hidden"); dashboard.classList.add("hidden"); return; }
+        if (response.status === 401) { login.classList.remove("hidden"); dashboard.classList.add("hidden"); dashboard.classList.remove("grid"); return; }
         const result = await response.json().catch(() => ({}));
         renderCoupons(result.coupons || []);
     }
