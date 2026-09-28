@@ -2043,25 +2043,81 @@ function verifyFiuuResponse(payload, config) {
     return crypto.timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(receivedSignature));
 }
 
+function verifyFiuuRequeryResponse(payload, config) {
+    const amount = trimValue(payload.Amount || payload.amount);
+    const domain = trimValue(payload.Domain || payload.domain);
+    const transactionId = trimValue(payload.TranID || payload.tranID);
+    const statCode = trimValue(payload.StatCode || payload.statcode || payload.status);
+    const receivedSignature = trimValue(payload.VrfKey || payload.vrfkey).toLowerCase();
+
+    if (!amount || !domain || !transactionId || !statCode || !receivedSignature || domain !== config.merchantId) return false;
+
+    const expectedSignature = crypto.createHash("md5")
+        .update(`${amount}${config.secretKey}${domain}${transactionId}${statCode}`)
+        .digest("hex");
+    return crypto.timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(receivedSignature));
+}
+
+async function requeryFiuuPaymentStatus(transactionId, amount, config) {
+    if (!transactionId || !amount) return null;
+
+    const querySignature = crypto.createHash("md5")
+        .update(`${transactionId}${config.merchantId}${config.verifyKey}${amount}`)
+        .digest("hex");
+    const queryBaseUrl = config.baseUrl.includes("sandbox-payment")
+        ? "https://sandbox-payment.fiuu.com/RMS/API/gate-query/index.php"
+        : "https://api.fiuu.com/RMS/API/gate-query/index.php";
+    const queryUrl = new URL(queryBaseUrl);
+    queryUrl.search = new URLSearchParams({
+        amount,
+        txID: transactionId,
+        domain: config.merchantId,
+        skey: querySignature,
+        type: "2",
+    }).toString();
+
+    try {
+        const response = await fetch(queryUrl, { headers: { Accept: "application/json" } });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
 async function processFiuuResponse(payload, config) {
     const orderNumber = trimValue(payload.orderid || payload.OrderID);
     const existingRecord = await readPaymentRecord(orderNumber);
-    const verified = verifyFiuuResponse(payload, config);
-    const amount = formatAmount(payload.amount || payload.Amount || existingRecord?.amount || 0);
+    let verified = verifyFiuuResponse(payload, config);
+    let effectivePayload = payload;
+    let amount = formatAmount(payload.amount || payload.Amount || existingRecord?.amount || 0);
     const recordAmount = formatAmount(existingRecord?.amount || amount);
-    const status = trimValue(payload.status || payload.Status || payload.statcode || payload.StatCode);
+    const transactionId = trimValue(payload.tranID || payload.TranID);
+
+    if (!verified && existingRecord && amount === recordAmount) {
+        const requeryResult = await requeryFiuuPaymentStatus(transactionId, amount, config);
+        if (requeryResult && verifyFiuuRequeryResponse(requeryResult, config)
+            && trimValue(requeryResult.TranID || requeryResult.tranID) === transactionId
+            && formatAmount(requeryResult.Amount || requeryResult.amount) === recordAmount) {
+            verified = true;
+            effectivePayload = { ...payload, ...requeryResult };
+            amount = recordAmount;
+        }
+    }
+
+    const status = trimValue(effectivePayload.status || effectivePayload.Status || effectivePayload.statcode || effectivePayload.StatCode);
     const state = getFiuuPaymentState(status);
 
     if (!existingRecord || !verified || amount !== recordAmount) {
-        return { verified: false, state: "unknown", orderNumber, transactionId: trimValue(payload.tranID || payload.TranID), amount };
+        return { verified: false, state: "unknown", orderNumber, transactionId, amount };
     }
 
     const record = {
         ...existingRecord,
-        transactionId: trimValue(payload.tranID || payload.TranID),
+        transactionId: trimValue(effectivePayload.tranID || effectivePayload.TranID),
         status,
-        statusDescription: trimValue(payload.error_desc || payload.ErrorDesc || payload.status_desc || payload.StatusDesc),
-        payerBankName: trimValue(payload.channel || payload.Channel),
+        statusDescription: trimValue(effectivePayload.error_desc || effectivePayload.ErrorDesc || effectivePayload.status_desc || effectivePayload.StatusDesc),
+        payerBankName: trimValue(effectivePayload.channel || effectivePayload.Channel),
         amount,
         state,
         verified: true,
