@@ -2025,13 +2025,20 @@ function verifyFiuuResponse(payload, config) {
     const amount = trimValue(payload.amount || payload.Amount);
     const domain = trimValue(payload.domain || payload.Domain);
     const transactionId = trimValue(payload.tranID || payload.TranID);
-    const statCode = trimValue(payload.statcode || payload.StatCode);
+    const orderNumber = trimValue(payload.orderid || payload.OrderID);
+    const statCode = trimValue(payload.status || payload.Status || payload.statcode || payload.StatCode);
+    const currency = trimValue(payload.currency || payload.Currency);
+    const payDate = trimValue(payload.paydate || payload.PayDate);
+    const appCode = trimValue(payload.appcode || payload.AppCode);
     const receivedSignature = trimValue(payload.skey || payload.Skey).toLowerCase();
 
-    if (!amount || !domain || !transactionId || !statCode || !receivedSignature || domain !== config.merchantId) return false;
+    if (!amount || !domain || !transactionId || !orderNumber || !statCode || !currency || !payDate || !appCode || !receivedSignature || domain !== config.merchantId) return false;
 
+    const paymentKey = crypto.createHash("md5")
+        .update(`${transactionId}${orderNumber}${statCode}${domain}${amount}${currency}`)
+        .digest("hex");
     const expectedSignature = crypto.createHash("md5")
-        .update(`${amount}${config.secretKey}${domain}${transactionId}${statCode}`)
+        .update(`${payDate}${domain}${paymentKey}${appCode}${config.secretKey}`)
         .digest("hex");
     return crypto.timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(receivedSignature));
 }
@@ -2042,7 +2049,8 @@ async function processFiuuResponse(payload, config) {
     const verified = verifyFiuuResponse(payload, config);
     const amount = formatAmount(payload.amount || payload.Amount || existingRecord?.amount || 0);
     const recordAmount = formatAmount(existingRecord?.amount || amount);
-    const state = getFiuuPaymentState(payload.statcode || payload.StatCode);
+    const status = trimValue(payload.status || payload.Status || payload.statcode || payload.StatCode);
+    const state = getFiuuPaymentState(status);
 
     if (!existingRecord || !verified || amount !== recordAmount) {
         return { verified: false, state: "unknown", orderNumber, transactionId: trimValue(payload.tranID || payload.TranID), amount };
@@ -2051,7 +2059,7 @@ async function processFiuuResponse(payload, config) {
     const record = {
         ...existingRecord,
         transactionId: trimValue(payload.tranID || payload.TranID),
-        status: trimValue(payload.statcode || payload.StatCode),
+        status,
         statusDescription: trimValue(payload.error_desc || payload.ErrorDesc || payload.status_desc || payload.StatusDesc),
         payerBankName: trimValue(payload.channel || payload.Channel),
         amount,
@@ -2073,7 +2081,17 @@ async function handleFiuuReturn(request) {
     const payload = await readFiuuPayload(request);
     const result = await processFiuuResponse(payload, config);
     const redirectUrl = new URL(`${config.frontendBaseUrl}/thank-you.html`);
-    [["orderid", result.orderNumber], ["tranID", result.transactionId], ["statcode", payload.statcode || payload.StatCode], ["amount", result.amount], ["domain", payload.domain || payload.Domain], ["skey", payload.skey || payload.Skey]].forEach(([key, value]) => redirectUrl.searchParams.set(key, value || ""));
+    [
+        ["orderid", result.orderNumber],
+        ["tranID", result.transactionId],
+        ["status", payload.status || payload.Status || payload.statcode || payload.StatCode],
+        ["amount", result.amount],
+        ["domain", payload.domain || payload.Domain],
+        ["currency", payload.currency || payload.Currency],
+        ["paydate", payload.paydate || payload.PayDate],
+        ["appcode", payload.appcode || payload.AppCode],
+        ["skey", payload.skey || payload.Skey],
+    ].forEach(([key, value]) => redirectUrl.searchParams.set(key, value || ""));
     return new Response(null, { status: 303, headers: { Location: redirectUrl.toString() } });
 }
 

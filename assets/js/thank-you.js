@@ -322,7 +322,7 @@
         } finally {
             const cleanUrl = new URL(window.location.href);
             [
-                "orderid", "tranID", "statcode", "amount", "domain", "skey",
+                "orderid", "tranID", "status", "statcode", "amount", "domain", "currency", "paydate", "appcode", "skey",
             ].forEach((key) => cleanUrl.searchParams.delete(key));
             window.history.replaceState({}, document.title, `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
         }
