@@ -364,6 +364,15 @@
                                 <input id="booking-email" name="customerEmail" type="email" autocomplete="email" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-700 shadow-sm focus:border-afwaja-teal focus:outline-none focus:ring-4 focus:ring-cyan-100" data-i18n-placeholder="placeholder_email" placeholder="Type your email">
                             </div>
 
+                            <div class="rounded-3xl border border-teal-100 bg-teal-50/60 px-5 py-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-afwaja-teal shadow-sm flex-shrink-0"><i class="fas fa-ticket"></i></div>
+                                    <div class="flex-1 min-w-0"><p class="text-sm font-semibold text-slate-800">Discount Coupon</p><p class="mt-1 text-sm text-slate-500">Masukkan kod coupon yang diberikan oleh team Afwaja.</p></div>
+                                </div>
+                                <div class="mt-4 flex gap-2"><input id="booking-coupon-code" name="couponCode" type="text" autocomplete="off" class="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono uppercase text-slate-700 shadow-sm focus:border-afwaja-teal focus:outline-none focus:ring-4 focus:ring-cyan-100" placeholder="Contoh: AFW-ABC123"><button id="booking-coupon-apply" type="button" class="rounded-2xl bg-afwaja-navy px-4 py-3 text-sm font-semibold text-white hover:bg-afwaja-teal">Apply</button></div>
+                                <p id="booking-coupon-feedback" class="hidden mt-3 text-sm font-medium"></p>
+                            </div>
+
                             <div class="rounded-3xl border border-slate-200 bg-slate-50/80 px-5 py-5 md:px-6">
                                 <div class="flex items-start gap-4">
                                     <div class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center text-afwaja-teal shadow-sm flex-shrink-0 border border-slate-100">
