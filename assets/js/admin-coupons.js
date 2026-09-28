@@ -2,11 +2,13 @@
     const form = document.querySelector("#coupon-form");
     const code = document.querySelector("#coupon-code");
     const original = document.querySelector("#preview-original");
+    const discount = document.querySelector("#preview-discount");
     const deal = document.querySelector("#preview-deal");
     const formatMoney = (value) => value ? `RM${Number(value).toFixed(2)}` : "—";
 
     form.addEventListener("input", () => {
         original.textContent = formatMoney(form.elements.originalPrice.value);
+        discount.textContent = formatMoney(form.elements.discountAmount.value);
         deal.textContent = formatMoney(form.elements.dealPrice.value);
     });
 
